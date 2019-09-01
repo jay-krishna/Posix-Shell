@@ -6,8 +6,13 @@
 #include <limits.h>
 #include <string>
 #include <cstring>
+#include <sys/wait.h>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
+
+char* commands[512];
 
 void PutPS1();
 
@@ -49,6 +54,61 @@ void PutPS1(){
 
 }
 
+void break_command(char buffer[]){
+
+	string temp="";
+	int count=0;
+	char del=' ';
+	char til='~';
+	struct passwd *pw;
+  				uid_t uid;
+				uid = geteuid();
+  				pw = getpwuid(uid);
+  				string display_user(pw->pw_name);
+  				display_user="/home/"+display_user;
+	for (unsigned int i = 0; i<strlen(buffer); ++i)
+	{
+		if(buffer[i]==del){
+			commands[count++]=(char*)malloc(strlen(temp.c_str())+1);
+			strcpy(commands[count-1],temp.c_str());
+			temp="";
+		}
+		else{
+			if(buffer[i]==til)
+				temp+=display_user;
+			else
+				temp+=buffer[i];}
+	}
+
+	commands[count++]=(char*)malloc(strlen(temp.c_str())+1);
+	strcpy(commands[count-1],temp.c_str());
+	commands[count]=NULL;
+
+}
+
+void execute(char buffer[]){
+	auto pid=fork();
+	// int status;
+	if(pid>0){
+		wait(NULL);
+	}
+	else if(pid==0){
+		break_command(buffer);
+		// printf("%s\n",commands[0]);
+		// printf("%s\n",commands[1]);
+		// printf("%s\n",commands[2]);
+		auto e = execvp(commands[0],commands);
+	
+		if (e == -1)
+			fprintf(stderr, "Error: %s\n", strerror(errno));
+
+		exit(1);
+	}
+	else{
+		printf("Fork Error\n");
+	}
+}
+
 int main(){
 	signal(SIGINT, sigint_handler);
 	// string n;
@@ -61,11 +121,12 @@ int main(){
 		fgets(buffer,sizeof(buffer),stdin);
 		if(buffer[strlen(buffer)-1]=='\n')
 			buffer[strlen(buffer)-1]='\0';
-		printf("%s\n",buffer);
 
-
-		if(strcmp(buffer,"quit")==0)
-			flag=false;
+		if(strcmp(buffer,"exit")==0){
+				flag=false;}
+		else{
+			execute(buffer);
+		}
 
 	}
 
