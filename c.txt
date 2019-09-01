@@ -1,0 +1,2 @@
+https://github.com/kalpishs/Unix-Shell-Implementation-in-C
+https://github.com/csaba97/Basic-Shell-implementation-in-C/blob/master/shell.c
