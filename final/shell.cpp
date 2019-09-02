@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <unordered_map>
 #include <dirent.h>
+#include <regex>
+#include <fstream>
 
 using namespace std;
 
@@ -28,9 +30,7 @@ void sigint_handler(int signum){
 }
 
 void traverse(){
-	// cout<<env_map.find("PATH")->second<<endl;
 	string temp=environment_var.find("PATH")->second;
-	// int i=0;
 	const char *delim=":";
 	char *token = strtok(const_cast<char*>(temp.c_str()), delim);
 	while (token != nullptr)
@@ -61,38 +61,84 @@ void make_path(const char* var, char* val){
 }
 
 void FetchEnvironmentVariables(){
+	environment_var.clear();
+	executable_var.clear();
 	const char *env_var[5] = {"PATH","HOME","USER","HOSTNAME","PS1"};
 	char *env_val[5];
-	for(int i=0; i<3; i++)
-	{
-		env_val[i] = getenv(env_var[i]);
-		make_path(env_var[i],env_val[i]);
-	}
+	struct passwd *pw;
+  	uid_t uid;
+  	const char *delim=":";
+
+	// for(int i=0; i<2; i++)
+	// {
+	// 	env_val[i] = getenv(env_var[i]);
+	// 	make_path(env_var[i],env_val[i]);
+	// }
+  	ifstream infile("/etc/environment");
+	string line;
+	getline(infile,line);
+
+	regex r("\"(.*?)\"");
+	smatch m;
+	regex_search(line, m, r);
+	string s(m[1]);
+	env_val[0]=(char*)s.c_str();
+	make_path(env_var[0],env_val[0]);
+	infile.close();
 	
+	uid = geteuid();
+  	ifstream infile2("/etc/passwd");
+  	string pattrn="(.*)(:"+to_string(uid)+":)(.*)";;
+  	regex r1(pattrn);
+  	int count=1;
+    while (getline(infile2, line))
+	{
+		if(regex_match(line,r1)){
+			char *token = strtok(const_cast<char*>(line.c_str()), delim);
+			while (token != nullptr)
+			{
+				if(count==1){
+					env_val[2]=token;
+					make_path(env_var[2],env_val[2]);
+				}
+				if(count==6){
+					env_val[1]=token;
+					make_path(env_var[1],env_val[1]);
+				}
+				++count;
+				token = strtok(nullptr, delim);
+			}
+		}
+	}
+
+
+  	pw = getpwuid(uid);
+  	env_val[2] = pw->pw_name;
+	make_path(env_var[2],env_val[2]);
+
 	char buffer[128];
 	gethostname(buffer,HOST_NAME_MAX);
 	make_path(env_var[3],buffer);
+
+	// for (auto x : environment_var) 
+ //      cout << x.first << " " << x.second << endl;
 
 	traverse();
 }
 
 void PutPS1(){
 
-	struct passwd *pw;
-  	uid_t uid;
   	char buffer[2048];
   	string display="";
   	bool flag=false;
+  	uid_t uid=geteuid();
 
-	uid = geteuid();
-  	pw = getpwuid(uid);
-  	string display_user(pw->pw_name);
-  	if(display_user=="root")
+  	string display_user=environment_var.find("USER")->second;
+  	if(uid==0)
   		flag=true;
   	display_user+="@";
 
-  	gethostname(buffer,HOST_NAME_MAX);
-  	string display_host(buffer);
+  	string display_host=environment_var.find("HOSTNAME")->second;
   	display_host+=": ";
 
   	getcwd(buffer,FILENAME_MAX);
@@ -124,7 +170,9 @@ void break_command(char buffer[]){
 	{
 		if(buffer[i]==del){
 			if(cn==0){
-				temp=executable_var.find(temp)->second;
+				auto it=executable_var.find(temp);
+				if(it!=executable_var.end())
+					temp=executable_var.find(temp)->second;
 				++cn;
 			}
 			commands[count++]=(char*)malloc(strlen(temp.c_str())+1);
@@ -156,7 +204,6 @@ void execute(char buffer[]){
 		wait(NULL);
 	}
 	else if(pid==0){
-		break_command(buffer);
 
 		string pathpass="PATH="+environment_var.find("PATH")->second;
     	char* e1[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
@@ -210,22 +257,21 @@ int main(){
     			if(flag_repeat)
     				flag_repeat=!flag_repeat;
     		}
-
-    		// buffer[i]=c;
-    		// 	++i;
   		}while(c!='\n');
 
 		if(buffer[strlen(buffer)-1]=='\n')
 			buffer[strlen(buffer)-1]='\0';
 
-		printf("Buffer is %s\n",buffer);
-
 		if(strcmp(buffer,"exit")==0){
-			cout<<"Inside"<<endl;
 				flag=false;
 		}
 		else{
-			execute(buffer);
+			break_command(buffer);
+			if(strcmp(commands[0],"cd")==0){
+				chdir(commands[1]);
+			}
+			else
+				execute(buffer);
 		}
 		fflush(stdin);
 		memset(buffer, 0, strlen(buffer));
