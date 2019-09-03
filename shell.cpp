@@ -29,6 +29,20 @@ void sigint_handler(int signum){
   fflush(stdout);
 }
 
+void CheckFile(){
+	ifstream infile(".my_bashrc");
+	if(infile.fail()){
+		infile.close();
+		ofstream outfile(".my_bashrc",ios::out);
+		outfile<<"PATH:/etc/environment"<<endl;
+		outfile<<"HOME:/etc/passwd"<<endl;
+
+
+	}
+	else
+		infile.close();
+}
+
 void traverse(){
 	string temp=environment_var.find("PATH")->second;
 	const char *delim=":";
@@ -153,18 +167,13 @@ void PutPS1(){
 
 }
 
-void break_command(char buffer[]){
+bool break_command(char buffer[]){
 
 	string temp="";
 	int count=0,cn=0;
 	char del=' ';
 	char til='~';
-	struct passwd *pw;
-	uid_t uid;
-	uid = geteuid();
-	pw = getpwuid(uid);
-	string display_user(pw->pw_name);
-	display_user="/home/"+display_user;
+	string display_user=environment_var.find("HOME")->second;
 	
 	for (unsigned int i = 0; i<strlen(buffer); ++i)
 	{
@@ -173,6 +182,8 @@ void break_command(char buffer[]){
 				auto it=executable_var.find(temp);
 				if(it!=executable_var.end())
 					temp=executable_var.find(temp)->second;
+				else
+					return false;
 				++cn;
 			}
 			commands[count++]=(char*)malloc(strlen(temp.c_str())+1);
@@ -188,12 +199,18 @@ void break_command(char buffer[]){
 	}
 
 	if(cn==0){
-		temp=executable_var.find(temp)->second;
+		auto it=executable_var.find(temp);
+		if(it!=executable_var.end())
+			temp=executable_var.find(temp)->second;
+		else
+			return false;
 		++cn;
 	}
 	commands[count++]=(char*)malloc(strlen(temp.c_str())+1);
 	strcpy(commands[count-1],temp.c_str());
 	commands[count]=NULL;
+
+	return true;
 
 }
 
@@ -204,7 +221,7 @@ void execute(char buffer[]){
 		wait(NULL);
 	}
 	else if(pid==0){
-
+		// auto itr=
 		string pathpass="PATH="+environment_var.find("PATH")->second;
     	char* e1[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
 		auto e = execve(commands[0],commands,e1);
@@ -224,6 +241,7 @@ int main(){
 	// string n;
 	bool flag=true;
 
+	CheckFile();
 	FetchEnvironmentVariables();
 
 	while(flag){
@@ -251,6 +269,9 @@ int main(){
     			++i;
     			flag_inside=!flag_inside;
     		}
+    		else if(c=='\t'){
+    			printf("Tab");
+    		}
     		else{
     			buffer[i]=c;
     			++i;
@@ -258,15 +279,20 @@ int main(){
     				flag_repeat=!flag_repeat;
     		}
   		}while(c!='\n');
-
 		if(buffer[strlen(buffer)-1]=='\n')
 			buffer[strlen(buffer)-1]='\0';
-
+		// cout<<strlen(buffer)<<endl;
 		if(strcmp(buffer,"exit")==0){
 				flag=false;
 		}
+		else if(strlen(buffer)==0){
+			continue;
+		}
 		else{
-			break_command(buffer);
+			if(!break_command(buffer)){
+				printf("Invalid Command\n");
+				continue;
+			}
 			if(strcmp(commands[0],"cd")==0){
 				chdir(commands[1]);
 			}
