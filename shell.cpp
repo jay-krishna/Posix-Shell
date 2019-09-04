@@ -37,9 +37,13 @@ int main(){
 		char c;
 		bool flag_inside=false,flag_repeat=false;
 
-		do {
+		do{
     		c=getchar();
-    		if(c==' ' && flag_repeat){
+    		// cout<<"Inside"<<endl;
+    		if(c=='\t'){
+    			printf("Tab is pressed\n");
+    		}
+    		else if(c==' ' && flag_repeat){
     			continue;
     		}
     		else if(c==' ' && !flag_repeat){
@@ -54,9 +58,9 @@ int main(){
     			++i;
     			flag_inside=!flag_inside;
     		}
-    		else if(c=='\t'){
-    			printf("Tab");
-    		}
+    		// else if(c=='\t'){
+    		// 	printf("Tab is pressed\n");
+    		// }
     		else{
     			buffer[i]=c;
     			++i;
