@@ -303,11 +303,11 @@ void FetchPath(unordered_map <string,string> &environment_var,unordered_map <str
 
 void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &new_environment_var){
 
-	environment_var.clear();
-	executable_var.clear();
-	new_environment_var.clear();
+	// environment_var.clear();
+	// executable_var.clear();
+	// new_environment_var.clear();
 	const char *env_var[5] = {"PATH","HOME","USER","HOSTNAME","PS1"};
-
+	// cout<<"Fetch"<<endl;
 	FetchHome(environment_var,executable_var,env_var);
 	vector<string> locations=CheckProfileFile(environment_var);
 	FetchPath(environment_var,executable_var,env_var,locations);
@@ -319,16 +319,16 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
 
 void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var){
 	const char *env_var[6] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS"};
-	alias_var.clear();
+	// alias_var.clear();
 	// for (auto x : new_environment_var) 
  //      cout << x.first << " " << x.second << endl;
 	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var);
 
-	// for (auto x : new_alias_var) 
- //      cout << x.first << " " << x.second << endl;
+	for (auto x : environment_var) 
+      cout << x.first << " " << x.second << endl;
  //  cout<<"%%%%%%%%\n";
-  	// for (auto x : alias_var) 
-   //    cout << x.first << " " << x.second << endl;
+  	for (auto x : alias_var) 
+      cout << x.first << " " << x.second << endl;
 
 	traverse(environment_var,executable_var);
 }

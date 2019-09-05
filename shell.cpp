@@ -27,13 +27,16 @@ void sigint_handler(int signum){
 }
 
 int main(){
+	// cout<<"Above"<<endl;
 	signal(SIGINT, sigint_handler);
 	bool flag=true;
 
 	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var);
 
 	while(flag){
+		cout<<getpid()<<" "<<getppid()<<endl;
 		char buffer[4096];
+		// cout<<"Above"<<endl;
 		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var);
 		PutPS1(environment_var);
 		int i=0;
@@ -80,17 +83,31 @@ int main(){
 		else if(strlen(buffer)==0){
 			continue;
 		}
+		else if((buffer[0]=='.')&&(buffer[1]=='/')){
+
+				// string s(buffer);
+				// commands[0]="./s.sh";
+				// cout<<"I am in"<<endl;
+				// execve(commands[0],NULL,NULL);
+			ExecuteScript(buffer,environment_var,commands);
+		}
 		else{
 
 			string command_check(buffer);
 			command_check=CheckForAlias(command_check,alias_var);
 			MakeCharArray(command_check,buffer);
+			// cout<<"CheckPoint1"<<endl;
 
 			bool check_flag=break_command(buffer,environment_var,executable_var,commands);
+			// cout<<"CheckPoint2"<<endl;
 			if((buffer[0]=='c') && (buffer[1]=='d') && (buffer[2]==' ')){
 				chdir(commands[1]);
 			}
 			else if((strcmp(commands[0],"path")==0)||(strcmp(commands[0],"PATH")==0)){
+				// cout<<"One"<<endl;
+				// cout<<commands[0]<<endl;
+				// cout<<commands[1]<<endl;
+				// cout<<commands[2]<<endl;
 				AddPath(commands,new_environment_var);
 			}
 			else if((strcmp(commands[0],"ALIAS")==0)||(strcmp(commands[0],"alias")==0)){
@@ -103,12 +120,19 @@ int main(){
 				// cout<<commands[1]<<endl;
 				// cout<<commands[2]<<endl;
 			}
+			// else if((buffer[0]=='.')&&(buffer[1]=='/')){
+			// 	string s(buffer);
+			// 	commands[0]="./shell";
+			// 	execve(commands[0],NULL,NULL);
+			// }
 			else if(!check_flag){
 				printf("Invalid Command\n");
 			}
 			else{
-				cout<<"execute"<<endl;
-					execute(buffer,environment_var,executable_var,commands);}
+				// cout<<"execute"<<endl;
+				cout<<commands[0]<<endl;
+				execute(buffer,environment_var,executable_var,commands);
+			}
 		}
 		fflush(stdin);
 		memset(buffer, 0, strlen(buffer));

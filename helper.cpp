@@ -109,12 +109,15 @@ bool break_command(char buffer[],unordered_map <string,string> &environment_var,
 		if(it!=executable_var.end())
 			temp=executable_var.find(temp)->second;
 		else
-			return false;
+			flag_valid=false;
 		++cn;
 	}
 	commands[count++]=(char*)malloc(strlen(temp.c_str())+1);
 	strcpy(commands[count-1],temp.c_str());
 	commands[count]=NULL;
+
+	// cout<<count<<endl;
+	// cout<<commands[1]<<endl;
 
 	return flag_valid;
 
