@@ -15,6 +15,9 @@ using namespace std;
 char* commands[512];
 unordered_map <string,string> environment_var;
 unordered_map <string,string> executable_var;
+unordered_map <string,string> alias_var;
+unordered_map <string,string> new_environment_var;
+unordered_map <string,string> new_alias_var;
 
 void sigint_handler(int signum){
   //give warning that the signal has been disabled
@@ -27,11 +30,11 @@ int main(){
 	signal(SIGINT, sigint_handler);
 	bool flag=true;
 
-	// CheckFile();
-	FetchEnvironmentVariables(environment_var,executable_var);
+	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var);
 
 	while(flag){
 		char buffer[4096];
+		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var);
 		PutPS1(environment_var);
 		int i=0;
 		char c;
@@ -78,15 +81,33 @@ int main(){
 			continue;
 		}
 		else{
+
+			string command_check(buffer);
+			command_check=CheckForAlias(command_check,alias_var);
+			MakeCharArray(command_check,buffer);
+
 			bool check_flag=break_command(buffer,environment_var,executable_var,commands);
 			if((buffer[0]=='c') && (buffer[1]=='d') && (buffer[2]==' ')){
 				chdir(commands[1]);
+			}
+			else if((strcmp(commands[0],"path")==0)||(strcmp(commands[0],"PATH")==0)){
+				AddPath(commands,new_environment_var);
+			}
+			else if((strcmp(commands[0],"ALIAS")==0)||(strcmp(commands[0],"alias")==0)){
+				AddAlias(commands,new_alias_var);
+			}
+			else if((buffer[0]=='e')&&(buffer[1]=='c')&&(buffer[2]=='h')&&(buffer[3]=='o')&&(buffer[4]==' ')){
+				// cout<<"three"<<endl;
+				// commands[0]=(char*)"echo";
+				// cout<<commands[0]<<endl;
+				// cout<<commands[1]<<endl;
+				// cout<<commands[2]<<endl;
 			}
 			else if(!check_flag){
 				printf("Invalid Command\n");
 			}
 			else{
-				// cout<<"execute"<<endl;
+				cout<<"execute"<<endl;
 					execute(buffer,environment_var,executable_var,commands);}
 		}
 		fflush(stdin);
