@@ -26,7 +26,7 @@ string ResolveD(char * buffer,unordered_map <string,string> &environment_var,uno
 		value=local_var.find(operand)->second;
 	else{
 		value="";
-		cout<<"Last"<<endl;
+		// cout<<"Last"<<endl;
 		return value;
 	}
 
@@ -76,15 +76,9 @@ void EchoExecute(unordered_map <string,string> &environment_var,unordered_map <s
 	else if((echo_command[loc+1]=='$')&&(echo_command[loc+2]=='?')){
 		cout<<"$?"<<endl;
 	}
-	else{
-		if(CheckContainsS(echo_command,"~")){
-				loc=echo_command.find("~");
-				// cout<<echo_command<<endl;
-				echo_command.replace(loc,1,environment_var.find("HOME")->second);
-				cout<<echo_command<<endl;
-		}
-		string print(echo_command,loc+1,echo_command.size()-loc-1);
-		// print=ResolveD(buffer,environment_var,local_var);
+	else if(echo_command[loc+1]=='$'){
+		// string print(echo_command,loc+1,echo_command.size()-loc-1);
+		string print=ResolveD(buffer,environment_var,local_var);
 		// cout<<print.size()<<endl;
 		// cout<<print<<endl;
 		// cout<<print<<endl;
@@ -98,9 +92,52 @@ void EchoExecute(unordered_map <string,string> &environment_var,unordered_map <s
 			cout<<print_resolved<<endl;
 		}
 	}
+	else{
+		if(CheckContainsS(echo_command,"~")){
+				loc=echo_command.find("~");
+				// cout<<echo_command<<endl;
+				echo_command.replace(loc,1,environment_var.find("HOME")->second);
+		}
+
+		string print(echo_command,loc+1,echo_command.size()-loc-1);
+		cout<<print<<endl;
+	}
 }
 
-void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,char* commands[]){
+void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,char* commands[],unordered_map <string,string> &local_var){
+
+	int id=getppid();
+	string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
+	ifstream infile(filename);
+	int id2=getpid();
+	string filename2=environment_var.find("HOME")->second+"/"+"."+to_string(id2)+"_.txt";
+	ofstream outfile(filename2,ios::out|ios::app);
+	string line;
+	const char *delim=":";
+
+	while (getline(infile, line))
+	{
+		char* token = strtok(const_cast<char*>(line.c_str()), delim);
+		string front(token);
+		// token = strtok(nullptr, delim);
+		string value;//(token);
+
+		// cout<<front<<" "<<value<<endl;
+		if(front=="PATH"){
+			value=environment_var.find(front)->second;
+		}
+		else{
+			value=local_var.find(front)->second;
+		}
+
+		string data=front+":"+value;
+		outfile<<data<<endl;
+	}
+
+
+	infile.close();
+	outfile.close();
+
 	auto pid=fork();
 	// int status;
 	if(pid>0){
@@ -166,6 +203,18 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 				new_environment_var.erase(part1);
 				new_environment_var.insert(make_pair(part1,part2));
 			}
+			// else if(part1=="HOME"){
+			// 	new_environment_var.erase(part1);
+			// 	new_environment_var.insert(make_pair(part1,part2));
+			// }
+			// else if(part1=="PATH"){
+			// 	new_environment_var.erase(part1);
+			// 	new_environment_var.insert(make_pair(part1,part2));
+			// }
+			// else if(part1=="PS1"){
+			// 	new_environment_var.erase(part1);
+			// 	new_environment_var.insert(make_pair(part1,part2));
+			// }
 			else{
 				local_var.erase(part1);
 				local_var.insert(make_pair(part1,part2));
@@ -189,6 +238,36 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		// cout<<commands[1]<<endl;
 		// cout<<commands[2]<<endl;
 		EchoExecute(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
+	}
+	else if(strcmp(commands[0],"export")==0){
+		// cout<<"export"<<endl;
+		// cout<<commands[1]<<endl;
+		// string export_command(commands[0]);
+		// cout<<"export"<<getpid()<<" "<<getppid()<<endl;
+		string front(commands[1]);
+		string value;
+		string data;
+		int id=(int)getpid();
+		string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
+		// cout<<filename<<endl;
+		if(front=="PATH"){
+			// cout<<"path"<<endl;
+			value=environment_var.find("PATH")->second;
+		}
+		else{
+			// cout<<"other"<<endl;
+			value=local_var.find(front)->second;
+		}
+		data=front+":"+value;
+		// cout<<data<<endl;
+		fstream outfile(filename,ios::out|ios::app);
+		outfile<<data<<endl;
+		outfile.close();
+
+		// int loc=export_command.find(" ");
+		// string var(export_command,loc+1,export_command.size()-loc-1);
+
+		// cout<<var<<endl;
 	}
 	else if(!check_flag){
 		printf("Invalid Command\n");

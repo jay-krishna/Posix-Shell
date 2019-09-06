@@ -34,7 +34,7 @@ vector<string> CheckProfileFile(unordered_map <string,string> environment_var){
     return v;
 }
 
-void CheckBashrcFile(unordered_map <string,string> &environment_var,const char *env_var[],unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var){
+void CheckBashrcFile(unordered_map <string,string> &environment_var,const char *env_var[],unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var){
 	// cout<<"Called"<<endl;
 	string filepath=environment_var.find("HOME")->second+"/.my_bashrc";
 	ifstream infile(filepath);
@@ -86,8 +86,11 @@ void CheckBashrcFile(unordered_map <string,string> &environment_var,const char *
     		token = strtok(nullptr, delim);
     		make_path(save_token,token,alias_var);
     	}
-    	else
-    		continue;
+    	else{
+    		// continue;
+    		token = strtok(nullptr, delim);
+    		local_var.insert(make_pair(loop_string,string(token)));
+    	}
     	// v.push_back(string(token));
     }
 
@@ -262,12 +265,12 @@ void traverse(unordered_map <string,string> &environment_var,unordered_map <stri
 	}
 }
 
-void FetchHome(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,const char *env_var[]){
+void FetchHome(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,const char *env_var[],unordered_map <string,string> &new_environment_var,unordered_map <string,string> &local_var){
 	char *env_val;
 	uid_t uid;
 	string line;
 	const char *delim=":";
-
+	// cout<<"Home"<<endl;
 	uid = geteuid();
   	ifstream infile("/etc/passwd");
   	string pattrn="(.*)(:"+to_string(uid)+":)(.*)";;
@@ -286,6 +289,36 @@ void FetchHome(unordered_map <string,string> &environment_var,unordered_map <str
 				++count;
 				token = strtok(nullptr, delim);
 			}
+		}
+	}
+
+	infile.close();
+
+	int id=getppid();
+	string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
+	// cout<<filename<<endl;
+	infile.open(filename);
+	if(infile.fail()){}
+	else{
+		// cout<<"Copy"<<endl;
+
+		while (getline(infile, line))
+		{
+			char* token = strtok(const_cast<char*>(line.c_str()), delim);
+			string front(token);
+			token = strtok(nullptr, delim);
+			string value(token);
+
+			// cout<<front<<" "<<value<<endl;
+			if(front=="PATH"){
+				new_environment_var.insert(make_pair(front,value));
+			}
+			else{
+				local_var.insert(make_pair(front,value));
+			}
+
+			string data=front+":"+value;
+			// outfile<<data<<endl;
 		}
 	}
 
@@ -347,6 +380,7 @@ void FetchPath(unordered_map <string,string> &environment_var,unordered_map <str
 
 void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var){
 
+	// cout<<"Env"<<endl;
 	environment_var.clear();
 	executable_var.clear();
 	new_environment_var.clear();
@@ -355,7 +389,7 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
 
 	const char *env_var[5] = {"PATH","HOME","USER","HOSTNAME","PS1"};
 	// cout<<"Fetch"<<endl;
-	FetchHome(environment_var,executable_var,env_var);
+	FetchHome(environment_var,executable_var,env_var,new_environment_var,local_var);
 	vector<string> locations=CheckProfileFile(environment_var);
 	FetchPath(environment_var,executable_var,env_var,locations);
 	FetchUserHostname(environment_var,executable_var,env_var,locations);
@@ -367,10 +401,11 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
 void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var){
 	const char *env_var[7] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS","PS1_val"};
 	alias_var.clear();
+	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var,local_var);
+	// cout<<"Bash"<<endl;
 	// for (auto x : new_environment_var) 
  //      cout << x.first << " " << x.second << endl;
-	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var);
-
+	// cout<<"%%%%%%%%\n";
 	// for (auto x : environment_var) 
  //      cout << x.first << " " << x.second << endl;
  //  cout<<"%%%%%%%%\n";

@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <unordered_map>
 #include <termios.h>
+#include <stdio.h>
 
 #include "environmenthandler.h"
 #include "helper.h"
@@ -37,7 +38,7 @@ int main(){
 	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var,new_alias_var,local_var);
 
 	while(flag){
-		// cout<<getpid()<<" "<<getppid()<<endl;
+		// cout<<"while"<<getpid()<<" "<<getppid()<<endl;
 		char buffer_before[4096];
 		char buffer[4096];
 		// cout<<"Above"<<endl;
@@ -81,13 +82,22 @@ int main(){
 		buffer[i]='\0';
 
 		if(strcmp(buffer,"exit")==0){
+				int id=getpid();
+				string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
+				// cout<<filename<<endl;
+				remove(filename.c_str());
+		// 		if( remove(filename.c_str()) != 0 )
+  //   perror( "Error deleting file" );
+  // else
+  //   puts( "File successfully deleted" );
+				// remove(filename.c_str());
 				flag=false;
 		}
 		else if(strlen(buffer)==0){
 			continue;
 		}
 		else if((buffer[0]=='.')&&(buffer[1]=='/')){
-			ExecuteScript(buffer,environment_var,commands);
+			ExecuteScript(buffer,environment_var,commands,local_var);
 		}
 		else{
 			ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
