@@ -38,11 +38,12 @@ void CheckBashrcFile(unordered_map <string,string> &environment_var,const char *
 	// cout<<"Called"<<endl;
 	string filepath=environment_var.find("HOME")->second+"/.my_bashrc";
 	ifstream infile(filepath);
+	// cout<<filepath<<endl;
 	if(infile.fail()){
 		// cout<<"Inside"<<endl;
 		infile.close();
 		ofstream outfile(filepath,ios::out);
-		outfile<<"PS1:DEFAULT"<<endl;
+		outfile<<"PS1:>"<<endl;
 		outfile.close();
 	}
 	else{
@@ -107,6 +108,20 @@ void CheckBashrcFile(unordered_map <string,string> &environment_var,const char *
     // else
     	// cout<<"Outside";
 
+    it1=new_environment_var.find("PS1");
+    // unordered_map<string,string>::iterator it2;
+    // it2=environment_var.find("PS1");
+
+    if(it1!=new_environment_var.end()){
+    	// cout<<"Inside"<<endl;
+    	value=it1->second;
+    	environment_var.erase("PS1");
+    	char cstr1[value.size() + 1];
+		strcpy(cstr1,value.c_str());
+    	make_path(env_var[4],cstr1,environment_var);
+    	// cout<<"Diff "<<cstr1<<endl;
+    }
+
     for(auto it3=new_alias_var.begin();it3!=new_alias_var.end();++it3){
     	string a=it3->first;
     	string b=it3->second;
@@ -120,10 +135,11 @@ void CheckBashrcFile(unordered_map <string,string> &environment_var,const char *
     infile.close();
 }
 
-void PutPS1(unordered_map <string,string> environment_var){
+string PutPS1(unordered_map <string,string> &environment_var){
 
   	char buffer[2048];
   	string display="";
+  	string display_save;
   	bool flag=false;
   	uid_t uid=geteuid();
 
@@ -137,45 +153,73 @@ void PutPS1(unordered_map <string,string> environment_var){
 	  	display_host+=": ";
 
 	  	getcwd(buffer,FILENAME_MAX);
+	  	// cout<<"0 "<<buffer<<endl;
 	  	string display_cwd(buffer);
+	  	display_save=display_user+display_host+display_cwd;
 	  	if(flag)
 	  		display_cwd+="# ";
 	  	else
 	  		display_cwd+="$ ";
 
+	  	// cout<<"1 "<<display_user<<endl;
+	  	// cout<<"2 "<<display_user<<endl;
+	  	// cout<<"3 "<<display_cwd<<endl;
 	  	display+=display_user+display_host+display_cwd;
 	  }
 	else{
 		display=environment_var.find("PS1")->second;
+		display_save=display;
 		if(flag)
 	  		display+="# ";
 	  	else
 	  		display+="$ ";
 	}
-  	printf("%s",display.c_str());
+  	// printf("%s",display.c_str());
+  	// cout<<display;
+
+  	// for (auto x : environment_var) 
+   //    cout << x.first << " " << x.second << endl;
+
+  	environment_var.erase("PS1");
+  	// // str
+  	// cout<<"This is display "<<display<<endl;
+
+  // for (auto x : environment_var) 
+  //     cout << x.first << " " << x.second << endl;
+
+
+  	environment_var.insert(make_pair("PS1",display_save));
+
+  	return display;
 
 }
 
 void AddPath(char* commands[],unordered_map <string,string> &new_environment_var){
-	cout<<"Called"<<endl;
+	// Format addpath <path link>
+	// cout<<"Called"<<endl;
 	auto it=new_environment_var.find("PATH");
 	const char* pth="PATH";
 	if(it!=new_environment_var.end()){
-		string new_path=it->second+':'+commands[2];
+		// cout<<"CheckPoint 1"<<endl;
+		string new_path=it->second+':'+commands[1];
 		new_environment_var.erase(string(pth));
 		char cstr[new_path.size() + 1];
 		strcpy(cstr, new_path.c_str());
 		make_path(pth,cstr,new_environment_var);
 		// new_environment_var.insert(new_path);
 	}
-	else
-		make_path(pth,commands[2],new_environment_var);
+	else{
+		// cout<<"Else"<<endl;
+		// cout<<commands[1]<<endl;
+		make_path(pth,commands[1],new_environment_var);
+	}
 
-	for (auto x : new_environment_var) 
-      cout << x.first << " " << x.second << endl;
+	// for (auto x : new_environment_var) 
+ //      cout << x.first << " " << x.second << endl;
 }
 
 void AddAlias(char* commands[],unordered_map <string,string> &new_alias_var){
+	// Format alias <alias name> <actual command>
 	string alias_body="";
 	// const char* als="ALIAS";
 
@@ -301,11 +345,14 @@ void FetchPath(unordered_map <string,string> &environment_var,unordered_map <str
 	infile.close();
 }
 
-void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &new_environment_var){
+void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var){
 
-	// environment_var.clear();
-	// executable_var.clear();
-	// new_environment_var.clear();
+	environment_var.clear();
+	executable_var.clear();
+	new_environment_var.clear();
+	new_alias_var.clear();
+	local_var.clear();
+
 	const char *env_var[5] = {"PATH","HOME","USER","HOSTNAME","PS1"};
 	// cout<<"Fetch"<<endl;
 	FetchHome(environment_var,executable_var,env_var);
@@ -317,17 +364,17 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
  //      cout << x.first << " " << x.second << endl;
 }
 
-void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var){
-	const char *env_var[6] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS"};
-	// alias_var.clear();
+void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var){
+	const char *env_var[7] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS","PS1_val"};
+	alias_var.clear();
 	// for (auto x : new_environment_var) 
  //      cout << x.first << " " << x.second << endl;
 	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var);
 
-	for (auto x : environment_var) 
-      cout << x.first << " " << x.second << endl;
+	// for (auto x : environment_var) 
+ //      cout << x.first << " " << x.second << endl;
  //  cout<<"%%%%%%%%\n";
-  	for (auto x : alias_var) 
+  	for (auto x : local_var) 
       cout << x.first << " " << x.second << endl;
 
 	traverse(environment_var,executable_var);

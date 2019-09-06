@@ -17,6 +17,22 @@ void MakeCharArray(string command_check,char* buff){
 	// return buffer;
 }
 
+bool CheckContains(char* buff,string pattern){
+	size_t loc = string(buff).find(pattern); 
+    if (loc!=string::npos)
+    	return true;
+    else
+    	return false;
+}
+
+bool CheckContainsS(string buff,string pattern){
+	size_t loc = string(buff).find(pattern); 
+    if (loc!=string::npos)
+    	return true;
+    else
+    	return false;
+}
+
 string CheckForAlias(string command,unordered_map <string,string> alias_var){
 	stringstream command_object(command);
 	string word;

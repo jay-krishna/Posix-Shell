@@ -5,10 +5,12 @@
 #include <cstring>
 #include <sys/wait.h>
 #include <unordered_map>
+#include <termios.h>
 
 #include "environmenthandler.h"
 #include "helper.h"
 #include "shellrunner.h"
+#include "getinput.h"
 
 using namespace std;
 
@@ -18,6 +20,7 @@ unordered_map <string,string> executable_var;
 unordered_map <string,string> alias_var;
 unordered_map <string,string> new_environment_var;
 unordered_map <string,string> new_alias_var;
+unordered_map <string,string> local_var;
 
 void sigint_handler(int signum){
   //give warning that the signal has been disabled
@@ -31,25 +34,29 @@ int main(){
 	signal(SIGINT, sigint_handler);
 	bool flag=true;
 
-	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var);
+	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var,new_alias_var,local_var);
 
 	while(flag){
-		cout<<getpid()<<" "<<getppid()<<endl;
+		// cout<<getpid()<<" "<<getppid()<<endl;
+		char buffer_before[4096];
 		char buffer[4096];
 		// cout<<"Above"<<endl;
-		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var);
-		PutPS1(environment_var);
-		int i=0;
+		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var);
+		string display=PutPS1(environment_var);
+		int i=0,j;
 		char c;
 		bool flag_inside=false,flag_repeat=false;
 
-		do{
-    		c=getchar();
+		struct termios initial_state=enableRawMode();
+		sendinput(buffer_before,display);
+		disableRawMode(initial_state);
+
+		// cout<<"From Input"<<buffer_before<<endl;
+
+		for(j=0;j<(int)strlen(buffer_before);++j){
+    		c=buffer_before[j];
     		// cout<<"Inside"<<endl;
-    		if(c=='\t'){
-    			printf("Tab is pressed\n");
-    		}
-    		else if(c==' ' && flag_repeat){
+    		if(c==' ' && flag_repeat){
     			continue;
     		}
     		else if(c==' ' && !flag_repeat){
@@ -64,18 +71,14 @@ int main(){
     			++i;
     			flag_inside=!flag_inside;
     		}
-    		// else if(c=='\t'){
-    		// 	printf("Tab is pressed\n");
-    		// }
     		else{
     			buffer[i]=c;
     			++i;
     			if(flag_repeat)
     				flag_repeat=!flag_repeat;
     		}
-  		}while(c!='\n');
-		if(buffer[strlen(buffer)-1]=='\n')
-			buffer[strlen(buffer)-1]='\0';
+  		}
+		buffer[i]='\0';
 
 		if(strcmp(buffer,"exit")==0){
 				flag=false;
@@ -84,55 +87,10 @@ int main(){
 			continue;
 		}
 		else if((buffer[0]=='.')&&(buffer[1]=='/')){
-
-				// string s(buffer);
-				// commands[0]="./s.sh";
-				// cout<<"I am in"<<endl;
-				// execve(commands[0],NULL,NULL);
 			ExecuteScript(buffer,environment_var,commands);
 		}
 		else{
-
-			string command_check(buffer);
-			command_check=CheckForAlias(command_check,alias_var);
-			MakeCharArray(command_check,buffer);
-			// cout<<"CheckPoint1"<<endl;
-
-			bool check_flag=break_command(buffer,environment_var,executable_var,commands);
-			// cout<<"CheckPoint2"<<endl;
-			if((buffer[0]=='c') && (buffer[1]=='d') && (buffer[2]==' ')){
-				chdir(commands[1]);
-			}
-			else if((strcmp(commands[0],"path")==0)||(strcmp(commands[0],"PATH")==0)){
-				// cout<<"One"<<endl;
-				// cout<<commands[0]<<endl;
-				// cout<<commands[1]<<endl;
-				// cout<<commands[2]<<endl;
-				AddPath(commands,new_environment_var);
-			}
-			else if((strcmp(commands[0],"ALIAS")==0)||(strcmp(commands[0],"alias")==0)){
-				AddAlias(commands,new_alias_var);
-			}
-			else if((buffer[0]=='e')&&(buffer[1]=='c')&&(buffer[2]=='h')&&(buffer[3]=='o')&&(buffer[4]==' ')){
-				// cout<<"three"<<endl;
-				// commands[0]=(char*)"echo";
-				// cout<<commands[0]<<endl;
-				// cout<<commands[1]<<endl;
-				// cout<<commands[2]<<endl;
-			}
-			// else if((buffer[0]=='.')&&(buffer[1]=='/')){
-			// 	string s(buffer);
-			// 	commands[0]="./shell";
-			// 	execve(commands[0],NULL,NULL);
-			// }
-			else if(!check_flag){
-				printf("Invalid Command\n");
-			}
-			else{
-				// cout<<"execute"<<endl;
-				cout<<commands[0]<<endl;
-				execute(buffer,environment_var,executable_var,commands);
-			}
+			ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
 		}
 		fflush(stdin);
 		memset(buffer, 0, strlen(buffer));

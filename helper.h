@@ -14,5 +14,7 @@ bool break_command(char buffer[],unordered_map <string,string> &environment_var,
 string CheckForAlias(string command,unordered_map <string,string> alias_var);
 void MakeCharArray(string command_check,char* buff);
 bool break_command(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]);
+bool CheckContains(char* buff,string pattern);
+bool CheckContainsS(string buff,string pattern);
 
 #endif
