@@ -270,6 +270,7 @@ void FetchHome(unordered_map <string,string> &environment_var,unordered_map <str
 	uid_t uid;
 	string line;
 	const char *delim=":";
+	const char *delim2="#";
 	// cout<<"Home"<<endl;
 	uid = geteuid();
   	ifstream infile("/etc/passwd");
@@ -304,16 +305,18 @@ void FetchHome(unordered_map <string,string> &environment_var,unordered_map <str
 
 		while (getline(infile, line))
 		{
-			char* token = strtok(const_cast<char*>(line.c_str()), delim);
+			char* token = strtok(const_cast<char*>(line.c_str()), delim2);
 			string front(token);
-			token = strtok(nullptr, delim);
+			token = strtok(nullptr, delim2);
 			string value(token);
 
 			// cout<<front<<" "<<value<<endl;
 			if(front=="PATH"){
-				new_environment_var.insert(make_pair(front,value));
+				environment_var.erase(front);
+				environment_var.insert(make_pair(front,value));
 			}
 			else{
+				environment_var.erase(front);
 				local_var.insert(make_pair(front,value));
 			}
 
@@ -361,7 +364,7 @@ void FetchUserHostname(unordered_map <string,string> &environment_var,unordered_
 
 }
 
-void FetchPath(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,const char *env_var[],vector<string>locations){
+void FetchPath(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,const char *env_var[],vector<string>locations,unordered_map <string,string> &new_environment_var){
 	char *env_val;
 	
 	ifstream infile(locations[0]);
@@ -372,8 +375,14 @@ void FetchPath(unordered_map <string,string> &environment_var,unordered_map <str
 	smatch m;
 	regex_search(line, m, r);
 	string s(m[1]);
-	env_val=(char*)s.c_str();
-	make_path(env_var[0],env_val,environment_var);
+
+	auto it=environment_var.find("PATH");
+	if(it==environment_var.end()){
+		// s=it->second;
+		env_val=(char*)s.c_str();
+
+		make_path(env_var[0],env_val,environment_var);
+	}
 
 	infile.close();
 }
@@ -391,7 +400,7 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
 	// cout<<"Fetch"<<endl;
 	FetchHome(environment_var,executable_var,env_var,new_environment_var,local_var);
 	vector<string> locations=CheckProfileFile(environment_var);
-	FetchPath(environment_var,executable_var,env_var,locations);
+	FetchPath(environment_var,executable_var,env_var,locations,new_environment_var);
 	FetchUserHostname(environment_var,executable_var,env_var,locations);
 
 	// for (auto x : environment_var) 
@@ -402,6 +411,7 @@ void FetchBashrcVariables(unordered_map <string,string> &environment_var,unorder
 	const char *env_var[7] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS","PS1_val"};
 	alias_var.clear();
 	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var,local_var);
+	new_environment_var.clear();
 	// cout<<"Bash"<<endl;
 	// for (auto x : new_environment_var) 
  //      cout << x.first << " " << x.second << endl;
@@ -409,8 +419,8 @@ void FetchBashrcVariables(unordered_map <string,string> &environment_var,unorder
 	// for (auto x : environment_var) 
  //      cout << x.first << " " << x.second << endl;
  //  cout<<"%%%%%%%%\n";
-  	for (auto x : local_var) 
-      cout << x.first << " " << x.second << endl;
+  	// for (auto x : local_var) 
+   //    cout << x.first << " " << x.second << endl;
 
 	traverse(environment_var,executable_var);
 }

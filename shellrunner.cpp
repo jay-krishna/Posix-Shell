@@ -5,7 +5,7 @@ string ResolveD(char * buffer,unordered_map <string,string> &environment_var,uno
 	// cout<<argument<<endl;
 	string pattern="$";
 	string value;
-
+	// cout<<"Called"<<endl;
 	int i=0;
 	for(i=0;i<(int)argument.size();++i){
 		// cout<<argument[i]<<endl;
@@ -17,17 +17,25 @@ string ResolveD(char * buffer,unordered_map <string,string> &environment_var,uno
 	// if(i==(int)argument.size()){
 	// 	return argument;
 	// }
-	string operand(argument,i+1,argument.size());
 	string front(argument,0,i);
-
-	if(environment_var.find(operand)!=environment_var.end())
-		value=environment_var.find(operand)->second;
-	else if(local_var.find(operand)!=local_var.end())
-		value=local_var.find(operand)->second;
+	if(argument[i+1]=='$'){
+		// cout<<"Inside"<<endl;
+		auto id=(int)getpid();
+		value=to_string(id);
+	}
+	else if(argument[i+1]=='?'){}
 	else{
-		value="";
-		// cout<<"Last"<<endl;
-		return value;
+		string operand(argument,i+1,argument.size());
+
+		if(environment_var.find(operand)!=environment_var.end())
+			value=environment_var.find(operand)->second;
+		else if(local_var.find(operand)!=local_var.end())
+			value=local_var.find(operand)->second;
+		else{
+			value="";
+			// cout<<"Last"<<endl;
+			return value;
+		}
 	}
 
 	// cout<<operand<<endl;
@@ -71,7 +79,7 @@ void EchoExecute(unordered_map <string,string> &environment_var,unordered_map <s
 		cout<<print<<endl;
 	}
 	else if((echo_command[loc+1]=='$')&&(echo_command[loc+2]=='$')){
-		cout<<"$$"<<endl;
+		cout<<getpid()<<endl;
 	}
 	else if((echo_command[loc+1]=='$')&&(echo_command[loc+2]=='?')){
 		cout<<"$?"<<endl;
@@ -113,7 +121,7 @@ void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,
 	string filename2=environment_var.find("HOME")->second+"/"+"."+to_string(id2)+"_.txt";
 	ofstream outfile(filename2,ios::out|ios::app);
 	string line;
-	const char *delim=":";
+	const char *delim="#";
 
 	while (getline(infile, line))
 	{
@@ -125,12 +133,13 @@ void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,
 		// cout<<front<<" "<<value<<endl;
 		if(front=="PATH"){
 			value=environment_var.find(front)->second;
+			// cout<<"Value export "<<value<<endl;
 		}
 		else{
 			value=local_var.find(front)->second;
 		}
 
-		string data=front+":"+value;
+		string data=front+"#"+value;
 		outfile<<data<<endl;
 	}
 
@@ -179,7 +188,9 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 			// cout<<"Yes"<<endl;
 		string value;
 		if(CheckContains(buffer,"$$")){
-			cout<<"$$"<<endl;
+			// cout<<"$$"<<endl;
+			value=ResolveD(buffer,environment_var,local_var);
+			command_check=value;
 		}
 		else if(CheckContains(buffer,"$?")){
 			cout<<"$?"<<endl;	
@@ -253,12 +264,13 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		if(front=="PATH"){
 			// cout<<"path"<<endl;
 			value=environment_var.find("PATH")->second;
+			// cout<<"Value "<<value<<endl;
 		}
 		else{
 			// cout<<"other"<<endl;
 			value=local_var.find(front)->second;
 		}
-		data=front+":"+value;
+		data=front+"#"+value;
 		// cout<<data<<endl;
 		fstream outfile(filename,ios::out|ios::app);
 		outfile<<data<<endl;
