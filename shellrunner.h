@@ -6,6 +6,7 @@
 #include <utility>
 #include <fstream>
 #include <ctime>
+#include <fcntl.h>
 
 #include "helper.h"
 #include "environmenthandler.h"

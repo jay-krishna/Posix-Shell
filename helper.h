@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -16,5 +18,6 @@ void MakeCharArray(string command_check,char* buff);
 bool break_command(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]);
 bool CheckContains(char* buff,string pattern);
 bool CheckContainsS(string buff,string pattern);
+void RecordHistory(char buffer[],unordered_map<string,string> environment_var);
 
 #endif

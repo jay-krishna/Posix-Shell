@@ -138,3 +138,49 @@ bool break_command(char buffer[],unordered_map <string,string> &environment_var,
 	return flag_valid;
 
 }
+
+void RecordHistory(char buffer[],unordered_map<string,string> environment_var){
+	string filename1=environment_var.find("HOME")->second+"/"+".myrc";
+	string filename2=environment_var.find("HOME")->second+"/"+"my_history.txt";
+
+	ifstream infile1(filename1);
+	if(infile1.fail()){
+		infile1.close();
+		ofstream outfile1(filename1);
+		outfile1<<"HISTLEN#50"<<endl;
+		outfile1.close();
+		infile1.open(filename1);
+	}
+	string line;
+	getline(infile1,line);
+	int loc=line.find("#");
+	string h(line,loc+1,line.size()-loc-1);
+	infile1.close();
+	int hlen=stoi(h);
+
+	fstream outfile2(filename2,ios::out|ios::in);
+	int count=0;
+	string data="";
+	while (getline(outfile2,line)){
+		// cout<<line<<endl;
+		if(count>hlen){
+			break;
+		}
+		data+=line;
+		data+="\n";
+		++count;
+		// cout<<data<<endl;
+	}
+	if(count==hlen){
+		int loc=data.find("\n");
+		string data2(data,loc+1,data.size()-loc-1);
+		data=data2;
+	}
+
+
+	data+=string(buffer);
+	outfile2.close();
+	outfile2.open(filename2,ios::out|ios::trunc);
+	outfile2<<data<<endl;
+	outfile2.close();
+}

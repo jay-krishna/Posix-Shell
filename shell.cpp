@@ -85,6 +85,7 @@ int main(){
 	signal(SIGINT, sigint_handler);
 	bool flag=true;
 	bool flag_alarm=true;
+	bool export_flag=true;
 
 	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var,new_alias_var,local_var);
 
@@ -93,7 +94,7 @@ int main(){
 		char buffer_before[4096];
 		char buffer[4096];
 		// cout<<"Above"<<endl;
-		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var);
+		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,export_flag);
 		string display=PutPS1(environment_var);
 		int i=0,j;
 		char c;
@@ -105,7 +106,7 @@ int main(){
 		}
 
 		struct termios initial_state=enableRawMode();
-		sendinput(buffer_before,display);
+		sendinput(buffer_before,display,environment_var);
 		disableRawMode(initial_state);
 
 		// cout<<"From Input"<<buffer_before<<endl;
@@ -136,6 +137,8 @@ int main(){
     		}
   		}
 		buffer[i]='\0';
+
+		RecordHistory(buffer,environment_var);
 
 		if(strcmp(buffer,"exit")==0){
 				int id=getpid();
@@ -171,7 +174,7 @@ int main(){
 		else if((buffer[0]=='.')&&(buffer[1]=='/')){
 			ExecuteScript(buffer,environment_var,commands,local_var);
 		}
-		else if((buffer[0]=='a')&&(buffer[1]=='l')&&(buffer[2]=='a')&&(buffer[3]=='r')&&(buffer[4]=='m')){
+		else if((buffer[0]=='a')&&(buffer[1]='l')&&(buffer[2]=='a')&&(buffer[3]=='r')&&(buffer[4]=='m')){
 			CreateAlarmChild(buffer,display,alarmchilds);
 		}
 		else{

@@ -270,7 +270,6 @@ void FetchHome(unordered_map <string,string> &environment_var,unordered_map <str
 	uid_t uid;
 	string line;
 	const char *delim=":";
-	const char *delim2="#";
 	// cout<<"Home"<<endl;
 	uid = geteuid();
   	ifstream infile("/etc/passwd");
@@ -294,11 +293,16 @@ void FetchHome(unordered_map <string,string> &environment_var,unordered_map <str
 	}
 
 	infile.close();
+}
 
+void ReadExport(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,const char *env_var[],unordered_map <string,string> &new_environment_var,unordered_map <string,string> &local_var){
+	const char *delim2="#";
 	int id=getppid();
 	string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
 	// cout<<filename<<endl;
-	infile.open(filename);
+	ifstream infile(filename);
+	string line;
+
 	if(infile.fail()){}
 	else{
 		// cout<<"Copy"<<endl;
@@ -312,6 +316,14 @@ void FetchHome(unordered_map <string,string> &environment_var,unordered_map <str
 
 			// cout<<front<<" "<<value<<endl;
 			if(front=="PATH"){
+				environment_var.erase(front);
+				environment_var.insert(make_pair(front,value));
+			}
+			else if(front=="HOME"){
+				environment_var.erase(front);
+				environment_var.insert(make_pair(front,value));
+			}
+			else if(front=="PS1"){
 				environment_var.erase(front);
 				environment_var.insert(make_pair(front,value));
 			}
@@ -407,11 +419,17 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
  //      cout << x.first << " " << x.second << endl;
 }
 
-void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var){
+void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var,bool &export_flag){
 	const char *env_var[7] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS","PS1_val"};
 	alias_var.clear();
 	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var,local_var);
 	new_environment_var.clear();
+
+	if(export_flag){
+		cout<<"Export Read"<<endl;
+		ReadExport(environment_var,executable_var,env_var,new_environment_var,local_var);
+		export_flag=false;
+	}
 	// cout<<"Bash"<<endl;
 	// for (auto x : new_environment_var) 
  //      cout << x.first << " " << x.second << endl;

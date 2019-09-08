@@ -85,14 +85,40 @@ void execute(char buffer[],unordered_map <string,string> &environment_var,unorde
 	// int status;
 	if(pid>0){
 		wait(NULL);
+
 	}
 	else if(pid==0){
 		// auto itr=
 		string pathpass="PATH="+environment_var.find("PATH")->second;
     	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
     	// cout<<commands[0]
+    	string filename="";
+    	int z=0;
+    	if(CheckContains(buffer,">")){
+			for(;commands[z];++z);
+			filename=commands[z-1];
+		}
+		if(z>0){
+			cout<<"yes"<<endl;
+			// int fd = open(filename.c_str(), O_RDWR | O_CREAT);
+			// dup2(fd, 1);
+			// close(fd);
+
+
+			for(int k=0;commands[k];++k)
+				cout<<commands[k]<<endl;
+			for(int j=0;;++j){
+				if(strcmp(commands[j],"<")==0||strcmp(commands[j],"<<")==0){
+					commands[j]=NULL;
+					break;
+				}
+			}
+			for(int k=0;commands[k];++k)
+				cout<<commands[k]<<endl;
+		}
+
 		auto e = execve(commands[0],commands,env_array);
-	
+		// cout<<e<<endl;
 		if (e == -1)
 			fprintf(stderr, "Error: %s\n", strerror(errno));
 
@@ -169,6 +195,14 @@ void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,
 			value=environment_var.find(front)->second;
 			// cout<<"Value export "<<value<<endl;
 		}
+		// if(front=="PS1"){
+		// 	value=environment_var.find(front)->second;
+		// 	// cout<<"Value export "<<value<<endl;
+		// }
+		// if(front=="HOME"){
+		// 	value=environment_var.find(front)->second;
+		// 	// cout<<"Value export "<<value<<endl;
+		// }
 		else{
 			value=local_var.find(front)->second;
 		}
@@ -179,6 +213,42 @@ void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,
 
 
 	infile.close();
+	outfile.close();
+
+	infile.open(filename2);
+	// outfile.open('temp.txt',ios::out|ios::trun);
+	string global_data="";
+
+	while (getline(infile, line))
+	{
+		char* token = strtok(const_cast<char*>(line.c_str()), delim);
+		string front(token);
+		// token = strtok(nullptr, delim);
+		string value;//(token);
+
+		// cout<<front<<" "<<value<<endl;
+		if(front=="PATH"){
+			value=environment_var.find(front)->second;
+			// cout<<"Value export "<<value<<endl;
+		}
+		// if(front=="PS1"){
+		// 	value=environment_var.find(front)->second;
+		// 	// cout<<"Value export "<<value<<endl;
+		// }
+		// if(front=="HOME"){
+		// 	value=environment_var.find(front)->second;
+		// 	// cout<<"Value export "<<value<<endl;
+		// }
+		else{
+			value=local_var.find(front)->second;
+		}
+
+		string data=front+"#"+value;
+		global_data+=data+'\n';
+	}
+	infile.close();
+	outfile.open(filename2,ios::trunc);
+	outfile<<global_data;
 	outfile.close();
 
 	auto pid=fork();
@@ -248,10 +318,10 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 				new_environment_var.erase(part1);
 				new_environment_var.insert(make_pair(part1,part2));
 			}
-			// else if(part1=="HOME"){
-			// 	new_environment_var.erase(part1);
-			// 	new_environment_var.insert(make_pair(part1,part2));
-			// }
+			else if(part1=="HOME"){
+				environment_var.erase(part1);
+				environment_var.insert(make_pair(part1,part2));
+			}
 			// else if(part1=="PATH"){
 			// 	new_environment_var.erase(part1);
 			// 	new_environment_var.insert(make_pair(part1,part2));
@@ -276,6 +346,14 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 	else if((strcmp(commands[0],"ALIAS")==0)||(strcmp(commands[0],"alias")==0)){
 		AddAlias(commands,new_alias_var);
 	}
+	else if((strcmp(commands[0],"history")==0)){
+		string filename2=environment_var.find("HOME")->second+"/"+"my_history.txt";
+		string line;
+	    ifstream infile1(filename2);
+	    while (getline(infile1,line)){
+	        cout<<line<<endl;
+	    }
+	}
 	else if((buffer[0]=='e')&&(buffer[1]=='c')&&(buffer[2]=='h')&&(buffer[3]=='o')&&(buffer[4]==' ')){
 		// cout<<"three"<<endl;
 		// commands[0]=(char*)"echo";
@@ -294,10 +372,20 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		string data;
 		int id=(int)getpid();
 		string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
-		// cout<<filename<<endl;
+		cout<<filename<<endl;
 		if(front=="PATH"){
-			// cout<<"path"<<endl;
+			cout<<"path"<<endl;
 			value=environment_var.find("PATH")->second;
+			cout<<"Value "<<value<<endl;
+		}
+		else if(front=="HOME"){
+			// cout<<"path"<<endl;
+			value=environment_var.find("HOME")->second;
+			// cout<<"Value "<<value<<endl;
+		}
+		else if(front=="PS1"){
+			// cout<<"path"<<endl;
+			value=environment_var.find("PS1")->second;
 			// cout<<"Value "<<value<<endl;
 		}
 		else{
@@ -305,7 +393,7 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 			value=local_var.find(front)->second;
 		}
 		data=front+"#"+value;
-		// cout<<data<<endl;
+		cout<<data<<endl;
 		fstream outfile(filename,ios::out|ios::app);
 		outfile<<data<<endl;
 		outfile.close();
@@ -313,7 +401,7 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		// int loc=export_command.find(" ");
 		// string var(export_command,loc+1,export_command.size()-loc-1);
 
-		// cout<<var<<endl;
+		cout<<data<<endl;
 	}
 	else if(!check_flag){
 		printf("Invalid Command\n");
@@ -321,6 +409,12 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 	else{
 		// cout<<"execute"<<endl;
 		// cout<<commands[0]<<endl;
+		// string filename="";
+		// if(CheckContains(buffer,">")){
+		// 	int z;
+		// 	for(z=0;commands[z];++z);
+		// 	filename=commands[z-1];
+		// }
 		execute(buffer,environment_var,executable_var,commands);
 	}
 }

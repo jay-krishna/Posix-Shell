@@ -1,12 +1,28 @@
 #include "getinput.h"
 
-void display_options(char* buffer,int top_buffer,string display){
+void display_options(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var){
 
-	write(STDOUT_FILENO,"\n\nKey was pressed will get back soon\n\n",strlen("\n\nKey was pressed will get back soon\n\n"));
-	write(STDOUT_FILENO,"1)One\n2)Two\n3)Three\n\n",strlen("1)One\n2)Two\n3)Three\n\n"));
+	// write(STDOUT_FILENO,"\n\nKey was pressed will get back soon\n\n",strlen("\n\nKey was pressed will get back soon\n\n"));
+	// write(STDOUT_FILENO,"1)One\n2)Two\n3)Three\n\n",strlen("1)One\n2)Two\n3)Three\n\n"));
 
+  auto data=TabDisplay(buffer,environment_var);
+  write(STDOUT_FILENO,data.c_str(),(size_t)data.size());
+  // write(STDOUT_FILENO,"Hello",strlen("Hello"));
 	PS1Display(display);
 	write(STDOUT_FILENO,buffer,top_buffer);
+
+}
+
+void display_optionsH(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var){
+
+  // write(STDOUT_FILENO,"\n\nKey was pressed will get back soon\n\n",strlen("\n\nKey was pressed will get back soon\n\n"));
+  // write(STDOUT_FILENO,"1)One\n2)Two\n3)Three\n\n",strlen("1)One\n2)Two\n3)Three\n\n"));
+
+  auto data=HistoryDisplay(buffer,environment_var);
+  write(STDOUT_FILENO,data.c_str(),(size_t)data.size());
+  // write(STDOUT_FILENO,"Hello",strlen("Hello"));
+  PS1Display(display);
+  write(STDOUT_FILENO,buffer,top_buffer);
 
 }
 
@@ -32,7 +48,7 @@ struct termios enableRawMode() {
   return initial_state;
 }
 
-int logkey(char* buffer,int &top_buffer, string display) {
+int logkey(char* buffer,int &top_buffer, string display,unordered_map <string,string> environment_var) {
   int status;
   char c;
   int flag=1;
@@ -51,12 +67,12 @@ int logkey(char* buffer,int &top_buffer, string display) {
   		break;
   	}
   	case CTRLR:{
-  		display_options(buffer,top_buffer,display);
+  		display_optionsH(buffer,top_buffer,display,environment_var);
   		flag=0;
   		break;
   	}
   	case '\t':{
-  		display_options(buffer,top_buffer,display);
+  		display_options(buffer,top_buffer,display,environment_var);
   		flag=0;
   		break;
   	}
@@ -95,14 +111,14 @@ void PS1Display(string display){
 	write(STDOUT_FILENO, display.c_str(),display.size());
 }
 
-void sendinput(char* buffer,string display){
+void sendinput(char* buffer,string display,unordered_map <string,string> environment_var){
 	// enableRawMode();
 	int it=1;
 	int top_buffer=0;
 	PS1Display(display);
 	while (it) {
 		// write(STDOUT_FILENO, "INSIDE", 6);
-		it=logkey(buffer,top_buffer,display);
+		it=logkey(buffer,top_buffer,display,environment_var);
 	}
 	// disableRawMode();
 	// cout<<buffer<<endl;

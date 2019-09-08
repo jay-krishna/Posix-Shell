@@ -8,6 +8,8 @@
 #include <iostream>
 #include <string>
 
+#include "search.h"
+
 using namespace std;
 
 #ifndef __getinput_H_INCLUDED__
@@ -15,9 +17,10 @@ using namespace std;
 
 void disableRawMode(struct termios initial_state);
 struct termios enableRawMode();
-void display_options(char* buffer,int top_buffer,string display);
-int logkey(char* buffer,int &top_buffer,string display);
-void sendinput(char* buffer,string display);
+void display_options(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var);
+void display_optionsH(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var);
+int logkey(char* buffer,int &top_buffer,string display,unordered_map <string,string> environment_var);
+void sendinput(char* buffer,string display,unordered_map <string,string> environment_var);
 void error_func(const char *s);
 void PS1Display(string display);
 
