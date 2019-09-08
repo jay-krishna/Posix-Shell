@@ -46,6 +46,40 @@ string ResolveD(char * buffer,unordered_map <string,string> &environment_var,uno
 	return value;
 }
 
+void GetAlarmChild(string buffer_string,string display,unordered_map<time_t,pid_t> &alarmchilds){
+	// string buffer_string(buffer);
+	int loc1=buffer_string.find("(");
+	int loc2=buffer_string.find(",");
+	// cout<<loc<<endl;
+	string message_string(buffer_string,loc1+1,(loc2-loc1-1));
+	// cout<<message_string<<endl;
+	string time_string(buffer_string,loc2+1,buffer_string.size()-loc2-2);
+	// cout<<time_string<<endl;
+	int timeduration=stoi(time_string);
+	time_t unixtimenow=time(nullptr);
+	time_t alarmtime=unixtimenow+timeduration;
+	cout<<unixtimenow<<endl;
+	cout<<alarmtime<<endl;
+
+	auto pid=fork();
+	if(pid>0){
+		alarmchilds[alarmtime]=pid;
+	}
+	if(pid==0){
+		bool flag=true;
+
+		while(flag){
+			time_t unixtimecurrent=time(nullptr);
+			if(unixtimecurrent>=alarmtime){
+				cout<<"Alarm: "<<message_string<<endl;
+				flag=false;
+			}
+		}
+		cout<<display;
+		exit(1);
+	}
+}
+
 void execute(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]){
 	auto pid=fork();
 	// int status;
