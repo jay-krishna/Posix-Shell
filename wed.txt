@@ -1,0 +1,58 @@
+/usr/bin/which
+md
+a.out
+environmenthandler.cpp
+environmenthandler.h
+environmenthandler.o
+getinput.cpp
+getinput.h
+getinput.o
+helper.cpp
+helper.h
+helper.o
+makefile
+search.cpp
+search.h
+search.o
+shell
+shell (copy).cpp
+shell.cpp
+shell.o
+shellrunner.cpp
+shellrunner.h
+shellrunner.o
+step.cpp
+step_final.c
+tab (copy).cpp
+tab.cpp
+wed.txt
+total 3376
+-rw-r--r-- 1 singular singular    1068 Sep  7 19:18 LICENSE
+-rw-r--r-- 1 singular singular      24 Sep  7 19:18 README.md
+-rwxr-xr-x 1 singular singular   39328 Sep  8 22:43 a.out
+-rw-r--r-- 1 singular singular   12553 Sep  8 14:59 environmenthandler.cpp
+-rw-r--r-- 1 singular singular    2666 Sep  8 14:54 environmenthandler.h
+-rw-r--r-- 1 singular singular 1618080 Sep  8 14:59 environmenthandler.o
+-rw-r--r-- 1 singular singular    3577 Sep  8 22:50 getinput.cpp
+-rw-r--r-- 1 singular singular    1012 Sep  8 22:26 getinput.h
+-rw-r--r-- 1 singular singular   75480 Sep  8 22:50 getinput.o
+-rw-r--r-- 1 singular singular    4052 Sep  8 22:19 helper.cpp
+-rw-r--r-- 1 singular singular     920 Sep  8 15:32 helper.h
+-rw-r--r-- 1 singular singular  109440 Sep  8 22:22 helper.o
+-rw-r--r-- 1 singular singular     520 Sep  8 21:28 makefile
+-rw-rw-r-- 1 singular singular    3480 Sep  8 22:52 search.cpp
+-rw-rw-r-- 1 singular singular     901 Sep  8 22:48 search.h
+-rw-r--r-- 1 singular singular  104248 Sep  8 22:52 search.o
+-rwxr-xr-x 1 singular singular  798128 Sep  9 00:29 shell
+-rw-r--r-- 1 singular singular    3756 Sep  7 19:18 shell (copy).cpp
+-rw-r--r-- 1 singular singular    5429 Sep  8 22:11 shell.cpp
+-rw-r--r-- 1 singular singular  338304 Sep  8 22:11 shell.o
+-rw-r--r-- 1 singular singular   13114 Sep  9 00:28 shellrunner.cpp
+-rw-r--r-- 1 singular singular    1616 Sep  8 23:58 shellrunner.h
+-rw-r--r-- 1 singular singular  247712 Sep  9 00:29 shellrunner.o
+-rw-r--r-- 1 singular singular    2448 Sep  7 19:18 step.cpp
+-rw-r--r-- 1 singular singular    2616 Sep  7 19:18 step_final.c
+-rw-rw-r-- 1 singular singular    2133 Sep  8 22:43 tab (copy).cpp
+-rw-rw-r-- 1 singular singular    2231 Sep  8 22:02 tab.cpp
+-rw------- 1 singular singular     329 Sep  9 00:20 wed.txt
+/usr/bin/which

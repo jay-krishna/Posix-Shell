@@ -92,33 +92,83 @@ void execute(char buffer[],unordered_map <string,string> &environment_var,unorde
 		string pathpass="PATH="+environment_var.find("PATH")->second;
     	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
     	// cout<<commands[0]
-    	string filename="";
-    	int z=0;
-    	if(CheckContains(buffer,">")){
-			for(;commands[z];++z);
-			filename=commands[z-1];
-		}
-		if(z>0){
-			cout<<"yes"<<endl;
-			// int fd = open(filename.c_str(), O_RDWR | O_CREAT);
-			// dup2(fd, 1);
-			// close(fd);
-
-
-			for(int k=0;commands[k];++k)
-				cout<<commands[k]<<endl;
-			for(int j=0;;++j){
-				if(strcmp(commands[j],"<")==0||strcmp(commands[j],"<<")==0){
-					commands[j]=NULL;
-					break;
-				}
-			}
-			for(int k=0;commands[k];++k)
-				cout<<commands[k]<<endl;
-		}
 
 		auto e = execve(commands[0],commands,env_array);
-		// cout<<e<<endl;
+		cout<<e<<endl;
+		if (e == -1)
+			fprintf(stderr, "Error: %s\n", strerror(errno));
+
+		exit(1);
+	}
+	else{
+		printf("Fork Error\n");
+	}
+}
+
+void executeRedA(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]){
+	auto pid=fork();
+	// int status;
+	if(pid>0){
+		wait(NULL);
+
+	}
+	else if(pid==0){
+		// auto itr=
+		string pathpass="PATH="+environment_var.find("PATH")->second;
+    	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
+    	
+    	int z=0;
+    	for(;commands[z]!=NULL;++z){}
+    	string filename=commands[z-1];
+    	// cout<<filename<<endl;
+    	commands[z-2]=NULL;
+    	z=0;
+    	// for(;commands[z]!=NULL;++z){
+    	//     		cout<<commands[z]<<endl;}
+
+    	int fd=open(filename.c_str(),O_CREAT|O_WRONLY|O_APPEND,S_IRUSR|S_IWUSR);
+    	dup2(fd,1);
+
+
+		auto e = execve(commands[0],commands,env_array);
+		cout<<e<<endl;
+		if (e == -1)
+			fprintf(stderr, "Error: %s\n", strerror(errno));
+
+		exit(1);
+	}
+	else{
+		printf("Fork Error\n");
+	}
+}
+
+void executeRed(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]){
+	auto pid=fork();
+	// int status;
+	if(pid>0){
+		wait(NULL);
+
+	}
+	else if(pid==0){
+		// auto itr=
+		string pathpass="PATH="+environment_var.find("PATH")->second;
+    	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
+    	
+    	int z=0;
+    	for(;commands[z]!=NULL;++z){}
+    	string filename=commands[z-1];
+    	// cout<<filename<<endl;
+    	commands[z-2]=NULL;
+    	z=0;
+    	// for(;commands[z]!=NULL;++z){
+    	//     		cout<<commands[z]<<endl;}
+
+    	int fd=open(filename.c_str(),O_CREAT|O_WRONLY,S_IRUSR|S_IWUSR);
+    	dup2(fd,1);
+
+
+		auto e = execve(commands[0],commands,env_array);
+		cout<<e<<endl;
 		if (e == -1)
 			fprintf(stderr, "Error: %s\n", strerror(errno));
 
@@ -415,6 +465,15 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		// 	for(z=0;commands[z];++z);
 		// 	filename=commands[z-1];
 		// }
-		execute(buffer,environment_var,executable_var,commands);
+		if(CheckContains(buffer,">>")){
+			// cout<<"no"<<endl;
+			executeRedA(buffer,environment_var,executable_var,commands);	
+		}
+		else if(CheckContains(buffer,">")){
+			// cout<<"yes"<<endl;
+			executeRed(buffer,environment_var,executable_var,commands);	
+		}
+		else
+			execute(buffer,environment_var,executable_var,commands);
 	}
 }

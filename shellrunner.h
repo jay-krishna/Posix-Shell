@@ -22,4 +22,6 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 void EchoExecute(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var,char* commands[],char buffer[]);
 string ResolveD(char * buffer,unordered_map <string,string> &environment_var,unordered_map <string,string> &local_var);
 void GetAlarmChild(string buffer_string,string display,unordered_map<time_t,pid_t> &alarmchilds);
+void executeRed(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]);
+void executeRedA(char buffer[],unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var, char* commands[]);
 #endif
