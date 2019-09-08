@@ -84,7 +84,19 @@ void execute(char buffer[],unordered_map <string,string> &environment_var,unorde
 	auto pid=fork();
 	// int status;
 	if(pid>0){
-		wait(NULL);
+		// wait(NULL);
+		int errorlo;
+		wait(&errorlo);
+		if(	WIFEXITED(errorlo)){
+			auto error=WEXITSTATUS(errorlo);
+			environment_var.erase("Error");
+			environment_var.insert(make_pair("Error",to_string(error)));
+			// environment_var["Error"]=error;
+			// cout<<"Error"<<error<<endl;
+			// cout<<"Yes"<<endl;
+			// cout<<environment_var.find("Error")->second<<endl;
+			// cout<<"No"<<endl;
+		}
 
 	}
 	else if(pid==0){
@@ -192,7 +204,7 @@ void EchoExecute(unordered_map <string,string> &environment_var,unordered_map <s
 		cout<<getpid()<<endl;
 	}
 	else if((echo_command[loc+1]=='$')&&(echo_command[loc+2]=='?')){
-		cout<<"$?"<<endl;
+		cout<<environment_var["Error"]<<endl;
 	}
 	else if(echo_command[loc+1]=='$'){
 		// string print(echo_command,loc+1,echo_command.size()-loc-1);
@@ -345,9 +357,14 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 			// cout<<"$$"<<endl;
 			value=ResolveD(buffer,environment_var,local_var);
 			command_check=value;
+			// cout<<command_check<<endl;
 		}
 		else if(CheckContains(buffer,"$?")){
-			cout<<"$?"<<endl;	
+			string cmd=string(buffer);
+			int loc=cmd.find("$");
+			string front(cmd,0,loc);
+			string command_check=front+environment_var.find("Error")->second;
+			// cout<<command_check<<endl;
 		}
 		else if(CheckContains(buffer,"$")){
 			value=ResolveD(buffer,environment_var,local_var);

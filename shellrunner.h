@@ -7,6 +7,7 @@
 #include <fstream>
 #include <ctime>
 #include <fcntl.h>
+#include <errno.h>
 
 #include "helper.h"
 #include "environmenthandler.h"

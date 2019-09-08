@@ -414,7 +414,7 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
 	vector<string> locations=CheckProfileFile(environment_var);
 	FetchPath(environment_var,executable_var,env_var,locations,new_environment_var);
 	FetchUserHostname(environment_var,executable_var,env_var,locations);
-
+	environment_var.insert(make_pair("Error","0"));
 	// for (auto x : environment_var) 
  //      cout << x.first << " " << x.second << endl;
 }
