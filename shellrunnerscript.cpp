@@ -335,6 +335,12 @@ void executeP(char buffer[],unordered_map <string,string> &environment_var,unord
     		fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
     		dup2(fd1,1);
     	}
+    	else if(count%2==0){
+    		fd0=open(filename2.c_str(),O_CREAT|O_RDONLY,S_IRUSR|S_IWUSR);
+    		dup2(fd0,0);
+    		fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    		dup2(fd1,1);
+    	}
     	else{
     		fd0=open(filename1.c_str(),O_CREAT|O_RDONLY,S_IRUSR|S_IWUSR);
     		dup2(fd0,0);
@@ -347,8 +353,8 @@ void executeP(char buffer[],unordered_map <string,string> &environment_var,unord
     	// 	fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
     	// 	dup2(fd1,1);
     	// }
-    	cout<<count<<endl;
-    	cout<<commands[0]<<endl;
+    	// cout<<count<<endl;
+    	// cout<<commands[0]<<endl;
 		auto e = execve(commands[0],commands,env_array);
 		cout<<e<<endl;
 		if (e == -1)
@@ -381,6 +387,26 @@ void executeRedAP(char buffer[],unordered_map <string,string> &environment_var,u
     	z=0;
     	// for(;commands[z]!=NULL;++z){
     	//     		cout<<commands[z]<<endl;}
+    	int fd0,fd1;
+    	string filename1="even.txt";
+    	string filename2="odd.txt";
+
+    	// if(count==0){
+    	// 	fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    	// 	dup2(fd1,1);
+    	// }
+    	if(count%2==0){
+    		fd0=open(filename2.c_str(),O_CREAT|O_RDONLY,S_IRUSR|S_IWUSR);
+    		dup2(fd0,0);
+    		// fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    		// dup2(fd1,1);
+    	}
+    	else{
+    		fd0=open(filename1.c_str(),O_CREAT|O_RDONLY,S_IRUSR|S_IWUSR);
+    		dup2(fd0,0);
+    		// fd1=open(filename2.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    		// dup2(fd1,1);
+    	}
 
     	int fd=open(filename.c_str(),O_CREAT|O_WRONLY|O_APPEND,S_IRUSR|S_IWUSR);
     	dup2(fd,1);
@@ -418,6 +444,30 @@ void executeRedP(char buffer[],unordered_map <string,string> &environment_var,un
     	z=0;
     	// for(;commands[z]!=NULL;++z){
     	//     		cout<<commands[z]<<endl;}
+
+    	int fd0,fd1;
+    	string filename1="even.txt";
+    	string filename2="odd.txt";
+
+    	// if(count==0){
+    	// 	fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    	// 	dup2(fd1,1);
+    	// }
+    	if(count%2==0){
+    		fd0=open(filename2.c_str(),O_CREAT|O_RDONLY,S_IRUSR|S_IWUSR);
+    		dup2(fd0,0);
+    		// fd1=open(filename1.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    		// dup2(fd1,1);
+    	}
+    	else{
+    		fd0=open(filename1.c_str(),O_CREAT|O_RDONLY,S_IRUSR|S_IWUSR);
+    		dup2(fd0,0);
+    		// fd1=open(filename2.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
+    		// dup2(fd1,1);
+    	}
+
+    	// int fd=open(filename.c_str(),O_CREAT|O_WRONLY|O_APPEND,S_IRUSR|S_IWUSR);
+    	// dup2(fd,1);
 
     	int fd=open(filename.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
     	dup2(fd,1);

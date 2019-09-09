@@ -207,7 +207,7 @@ int main(){
 
 		// }
 		else if(CheckContains(buffer,"|")){
-			cout<<"pipe"<<endl;
+			// cout<<"pipe"<<endl;
 			int count=0;
 			const char *delim2="|";
 			char *token = strtok(const_cast<char*>(buffer), delim2);
@@ -216,6 +216,28 @@ int main(){
 				token = strtok(nullptr, delim2);
 				++count;
 			}
+			--count;
+			if(CheckContains(buffer,">") || CheckContains(buffer,">>")){
+
+			}
+			else if(count%2){
+				string filename1="odd.txt";
+				ifstream file(filename1);
+				string line;
+				while(getline(file,line))
+					cout<<line<<endl;
+				file.close();
+			}
+			else{
+				string filename1="even.txt";
+				ifstream file(filename1);
+				string line;
+				while(getline(file,line))
+					cout<<line<<endl;
+				file.close();
+			}
+			remove("odd.txt");
+			remove("even.txt");
 		}
 		else if(!script_flag){
 			ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
