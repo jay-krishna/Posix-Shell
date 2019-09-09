@@ -1,3 +1,7 @@
+/*
+  2019201019
+  Termios Input
+*/
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
@@ -15,8 +19,8 @@ using namespace std;
 #ifndef __getinput_H_INCLUDED__
 #define __getinput_H_INCLUDED__
 
-void disableRawMode(struct termios initial_state);
-struct termios enableRawMode();
+void disable(struct termios initial_state);
+struct termios enable();
 void display_options(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var,vector <string>executable_var2);
 void display_optionsH(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var);
 int logkey(char* buffer,int &top_buffer,string display,unordered_map <string,string> environment_var,vector <string>executable_var2);

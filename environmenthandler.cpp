@@ -1,3 +1,7 @@
+/*
+	2019201019
+	Fetches Environment from Bashrc & profile.
+*/
 #include "environmenthandler.h"
 
 vector<string> CheckProfileFile(unordered_map <string,string> environment_var){

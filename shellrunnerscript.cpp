@@ -1,3 +1,7 @@
+/*
+	2019201019
+	Backend for shell(script record & pipe)
+*/
 #include "shellrunnerscript.h"
 
 string ResolveDS(char * buffer,unordered_map <string,string> &environment_var,unordered_map <string,string> &local_var){

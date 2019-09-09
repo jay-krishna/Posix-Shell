@@ -1,3 +1,7 @@
+/*
+  2019201019
+  Termios Input
+*/
 #include "getinput.h"
 
 void display_options(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var,vector <string>executable_var2){
@@ -26,11 +30,11 @@ void display_optionsH(char buffer[],int top_buffer,string display,unordered_map 
 
 }
 
-void disableRawMode(struct termios initial_state) {
+void disable(struct termios initial_state) {
   tcsetattr(STDIN_FILENO, TCSADRAIN, &initial_state);
 }
 
-struct termios enableRawMode() {
+struct termios enable() {
 	struct termios initial_state;
   tcgetattr(STDIN_FILENO, &initial_state);
   struct termios raw = initial_state;

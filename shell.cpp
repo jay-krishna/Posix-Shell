@@ -1,3 +1,6 @@
+/*
+	2019201019
+*/
 #include <iostream>
 #include <signal.h>
 #include <unistd.h>
@@ -108,9 +111,9 @@ int main(){
 			flag_alarm=false;
 		}
 
-		struct termios initial_state=enableRawMode();
+		struct termios initial_state=enable();
 		sendinput(buffer_before,display,environment_var,executable_var2);
-		disableRawMode(initial_state);
+		disable(initial_state);
 
 		// cout<<"From Input"<<buffer_before<<endl;
 

@@ -1,3 +1,7 @@
+/*
+	2019201019
+	Fetches Environment from Bashrc & profile.
+*/
 #include <string>
 #include <cstring>
 #include <unordered_map>

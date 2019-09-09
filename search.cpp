@@ -1,3 +1,7 @@
+/*
+    2019201019
+    Trie for tab & history
+*/
 #include "search.h"
 
 struct Node{
