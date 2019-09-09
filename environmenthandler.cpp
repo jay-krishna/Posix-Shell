@@ -237,9 +237,10 @@ void AddAlias(char* commands[],unordered_map <string,string> &new_alias_var){
 	make_path(commands[1],cstr,new_alias_var);
 }
 
-void traverse(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var){
+void traverse(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,vector <string>&executable_var2){
 	// environment_var.clear();
 	executable_var.clear();
+	executable_var2.clear();
 
 	string temp=environment_var.find("PATH")->second;
 	// cout<<temp<<endl;
@@ -259,6 +260,7 @@ void traverse(unordered_map <string,string> &environment_var,unordered_map <stri
 				continue;
 			string real=string(token)+"/"+pdir->d_name;
 			executable_var.insert(make_pair(pdir->d_name,real));
+			executable_var2.push_back(pdir->d_name);
 		}
    		closedir(dir);
 		token = strtok(nullptr, delim);
@@ -419,7 +421,7 @@ void FetchEnvironmentVariables(unordered_map <string,string> &environment_var,un
  //      cout << x.first << " " << x.second << endl;
 }
 
-void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var,bool &export_flag){
+void FetchBashrcVariables(unordered_map <string,string> &environment_var,unordered_map <string,string> &executable_var,unordered_map <string,string> &alias_var,unordered_map <string,string> &new_environment_var,unordered_map <string,string> &new_alias_var,unordered_map <string,string> &local_var,bool &export_flag,vector <string>&executable_var2){
 	const char *env_var[7] = {"PATH","HOME","USER","HOSTNAME","PS1","ALIAS","PS1_val"};
 	alias_var.clear();
 	CheckBashrcFile(environment_var,env_var,alias_var,new_environment_var,new_alias_var,local_var);
@@ -440,5 +442,5 @@ void FetchBashrcVariables(unordered_map <string,string> &environment_var,unorder
   	// for (auto x : local_var) 
    //    cout << x.first << " " << x.second << endl;
 
-	traverse(environment_var,executable_var);
+	traverse(environment_var,executable_var,executable_var2);
 }

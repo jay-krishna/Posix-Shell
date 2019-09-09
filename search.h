@@ -30,7 +30,7 @@ string print_v(std::vector<string> v);
 void AddNode(struct Node *root, string key);
 void FindWords(struct Node* root, char str[],int level,vector<string>&optionlist);
 vector<string> FindWordsDriver(struct Node* root,string key);
-string TabDisplay(char buffer[],unordered_map <string,string> environment_var);
+string TabDisplay(char buffer[],unordered_map <string,string> environment_var,vector <string>executable_var2);
 string HistoryDisplay(char buffer[],unordered_map <string,string> environment_var);
 
 #endif

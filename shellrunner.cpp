@@ -85,12 +85,12 @@ void execute(char buffer[],unordered_map <string,string> &environment_var,unorde
 	// int status;
 	if(pid>0){
 		// wait(NULL);
-		int errorlo;
-		wait(&errorlo);
-		if(	WIFEXITED(errorlo)){
-			auto error=WEXITSTATUS(errorlo);
+		int log;
+		wait(&log);
+		if(	WIFEXITED(log)){
+			auto ex=WEXITSTATUS(log);
 			environment_var.erase("Error");
-			environment_var.insert(make_pair("Error",to_string(error)));
+			environment_var.insert(make_pair("Error",to_string(ex)));
 			// environment_var["Error"]=error;
 			// cout<<"Error"<<error<<endl;
 			// cout<<"Yes"<<endl;

@@ -30,6 +30,7 @@ unordered_map <string,string> local_var;
 unordered_map<time_t,pid_t> alarmchilds;
 priority_queue <time_t,vector<int>,greater<int>> allalarms;
 unordered_map <time_t,string> alarmmessage;
+vector <string> executable_var2;
 
 void sigint_handler(int signum){
   //give warning that the signal has been disabled
@@ -96,7 +97,7 @@ int main(){
 		char buffer_before[4096];
 		char buffer[4096];
 		// cout<<"Above"<<endl;
-		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,export_flag);
+		FetchBashrcVariables(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,export_flag,executable_var2);
 		string display=PutPS1(environment_var);
 		int i=0,j;
 		char c;
@@ -108,7 +109,7 @@ int main(){
 		}
 
 		struct termios initial_state=enableRawMode();
-		sendinput(buffer_before,display,environment_var);
+		sendinput(buffer_before,display,environment_var,executable_var2);
 		disableRawMode(initial_state);
 
 		// cout<<"From Input"<<buffer_before<<endl;

@@ -17,9 +17,9 @@ struct Node* GetLoc(string key,struct Node* root){
 string print_v(std::vector<string> v){
     string data="\n\n";
     for(int i=0;i<(int)v.size();++i){
-        data+=v[i]+" ";
-        if(i%5==0&&i!=0)
-            data+="\n";
+        data+=v[i]+"\n";
+        // if(i%5==0&&i!=0)
+        //     data+="\n";
     }
     // cout<<endl;
     data+="\n";
@@ -76,10 +76,10 @@ vector<string> FindWordsDriver(struct Node* root,string key)
     return(optionlist);
 }
 
-string TabDisplay(char buffer[],unordered_map <string,string> environment_var){
+string TabDisplay(char buffer[],unordered_map <string,string> environment_var,vector <string>executable_var2){
     string key(buffer);
-    string temp=environment_var.find("PATH")->second;
-    const char *delim=":";
+    // string temp=environment_var.find("PATH")->second;
+    // const char *delim=":";
     struct Node* root=new Node;
     for(int i=0;i<lx;++i){
         root->child[i]=NULL;
@@ -87,23 +87,10 @@ string TabDisplay(char buffer[],unordered_map <string,string> environment_var){
     }
     // char str[100];
 
-    char *token = strtok(const_cast<char*>(temp.c_str()), delim);
-    while (token != nullptr)
+    // char *token = strtok(const_cast<char*>(temp.c_str()), delim);
+    for(int i=0;i<(int)executable_var2.size();++i)
     {
-        dirent *pdir;
-        DIR *dir = opendir(token);
-
-        if (dir != NULL) {
-            while ((pdir = readdir(dir))){
-                if(strcmp(pdir->d_name,".")==0||strcmp(pdir->d_name,"..")==0)
-                    continue;
-                string real=pdir->d_name;
-                AddNode(root, real);
-                // executable_var.insert(make_pair(pdir->d_name,real));
-            }
-        }
-        closedir(dir);
-        token = strtok(nullptr, delim);
+        AddNode(root,executable_var2[i]);
     }
 
     string data="";

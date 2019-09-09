@@ -1,11 +1,11 @@
 #include "getinput.h"
 
-void display_options(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var){
+void display_options(char buffer[],int top_buffer,string display,unordered_map <string,string> environment_var,vector <string>executable_var2){
 
 	// write(STDOUT_FILENO,"\n\nKey was pressed will get back soon\n\n",strlen("\n\nKey was pressed will get back soon\n\n"));
 	// write(STDOUT_FILENO,"1)One\n2)Two\n3)Three\n\n",strlen("1)One\n2)Two\n3)Three\n\n"));
 
-  auto data=TabDisplay(buffer,environment_var);
+  auto data=TabDisplay(buffer,environment_var,executable_var2);
   write(STDOUT_FILENO,data.c_str(),(size_t)data.size());
   // write(STDOUT_FILENO,"Hello",strlen("Hello"));
 	PS1Display(display);
@@ -26,36 +26,30 @@ void display_optionsH(char buffer[],int top_buffer,string display,unordered_map 
 
 }
 
-void error_func(const char *s) {
-  perror(s);
-  exit(1);
-}
-
 void disableRawMode(struct termios initial_state) {
-  if (tcsetattr(STDIN_FILENO, TCSADRAIN, &initial_state) == -1)
-    error_func("ERROR");
+  tcsetattr(STDIN_FILENO, TCSADRAIN, &initial_state);
 }
 
 struct termios enableRawMode() {
 	struct termios initial_state;
-  if (tcgetattr(STDIN_FILENO, &initial_state) == -1) error_func("ERROR");
+  tcgetattr(STDIN_FILENO, &initial_state);
   struct termios raw = initial_state;
   raw.c_lflag &= ~(ECHO | ICANON);
   raw.c_cc[VMIN] = 0;
   raw.c_cc[VTIME] = 1;
-  if (tcsetattr(STDIN_FILENO, TCSADRAIN, &raw) == -1) error_func("ERROR");
+  tcsetattr(STDIN_FILENO, TCSADRAIN, &raw);
 
   return initial_state;
 }
 
-int logkey(char* buffer,int &top_buffer, string display,unordered_map <string,string> environment_var) {
+int logkey(char* buffer,int &top_buffer, string display,unordered_map <string,string> environment_var,vector <string>executable_var2) {
   int status;
   char c;
   int flag=1;
   int enter_flag=1;
   while ((status = read(STDIN_FILENO, &c, 1)) != 1) {
-    if (status==-1&&errno!=EAGAIN) error_func("read");
   }
+  
   switch(c){
   	case DEL:{
   		if(top_buffer>0){
@@ -72,7 +66,7 @@ int logkey(char* buffer,int &top_buffer, string display,unordered_map <string,st
   		break;
   	}
   	case '\t':{
-  		display_options(buffer,top_buffer,display,environment_var);
+  		display_options(buffer,top_buffer,display,environment_var,executable_var2);
   		flag=0;
   		break;
   	}
@@ -111,14 +105,14 @@ void PS1Display(string display){
 	write(STDOUT_FILENO, display.c_str(),display.size());
 }
 
-void sendinput(char* buffer,string display,unordered_map <string,string> environment_var){
+void sendinput(char* buffer,string display,unordered_map <string,string> environment_var,vector <string>executable_var2){
 	// enableRawMode();
 	int it=1;
 	int top_buffer=0;
 	PS1Display(display);
 	while (it) {
 		// write(STDOUT_FILENO, "INSIDE", 6);
-		it=logkey(buffer,top_buffer,display,environment_var);
+		it=logkey(buffer,top_buffer,display,environment_var,executable_var2);
 	}
 	// disableRawMode();
 	// cout<<buffer<<endl;

@@ -387,7 +387,7 @@ void executeRedAP(char buffer[],unordered_map <string,string> &environment_var,u
     	z=0;
     	// for(;commands[z]!=NULL;++z){
     	//     		cout<<commands[z]<<endl;}
-    	int fd0,fd1;
+    	int fd0;
     	string filename1="even.txt";
     	string filename2="odd.txt";
 
@@ -445,7 +445,7 @@ void executeRedP(char buffer[],unordered_map <string,string> &environment_var,un
     	// for(;commands[z]!=NULL;++z){
     	//     		cout<<commands[z]<<endl;}
 
-    	int fd0,fd1;
+    	int fd0;
     	string filename1="even.txt";
     	string filename2="odd.txt";
 
