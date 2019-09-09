@@ -1,6 +1,5 @@
 all:shell
 
-
 shell: shell.o helper.o environmenthandler.o shellrunner.o getinput.o search.o shellrunnerscript.o
 	g++ -Wall shell.o helper.o environmenthandler.o shellrunner.o getinput.o search.o shellrunnerscript.o -o shell
 
