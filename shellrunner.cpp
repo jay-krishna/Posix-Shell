@@ -58,8 +58,8 @@ void GetAlarmChild(string buffer_string,string display,unordered_map<time_t,pid_
 	int timeduration=stoi(time_string);
 	time_t unixtimenow=time(nullptr);
 	time_t alarmtime=unixtimenow+timeduration;
-	cout<<unixtimenow<<endl;
-	cout<<alarmtime<<endl;
+	// cout<<unixtimenow<<endl;
+	// cout<<alarmtime<<endl;
 
 	auto pid=fork();
 	if(pid>0){
@@ -102,8 +102,15 @@ void execute(char buffer[],unordered_map <string,string> &environment_var,unorde
 	else if(pid==0){
 		// auto itr=
 		string pathpass="PATH="+environment_var.find("PATH")->second;
-    	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
-    	cout<<commands[0];
+    	// char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
+    	char* env_array[7]={(char*)pathpass.c_str(),
+    		(char*)"TERM=xterm-256color",
+    		(char*)"DISPLAY=:0",
+    		(char*)"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus",
+    		(char*)"XDG_RUNTIME_DIR=/run/user/1000",
+    		(char*)"XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0",
+    		NULL};
+    	// cout<<commands[0];
 
 		auto e = execve(commands[0],commands,env_array);
 		cout<<e<<endl;
@@ -321,7 +328,14 @@ void ExecuteScript(char buffer[],unordered_map <string,string> &environment_var,
 	else if(pid==0){
 		// auto itr=
 		string pathpass="PATH="+environment_var.find("PATH")->second;
-    	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
+    	char* env_array[3]={(char*)pathpass.c_str(),
+    		(char*)"TERM=xterm-256color",
+    		// (char*)"DISPLAY=:0",
+    		// (char*)"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus",
+    		// (char*)"XDG_RUNTIME_DIR=/run/user/1000",
+    		// (char*)"XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0",
+    		NULL};
+
     	// cout<<commands[0]
     	string temp(buffer);
     	commands[0]=(char*)malloc(strlen(temp.c_str())+1);
@@ -449,11 +463,11 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		string data;
 		int id=(int)getpid();
 		string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
-		cout<<filename<<endl;
+		// cout<<filename<<endl;
 		if(front=="PATH"){
-			cout<<"path"<<endl;
+			// cout<<"path"<<endl;
 			value=environment_var.find("PATH")->second;
-			cout<<"Value "<<value<<endl;
+			// cout<<"Value "<<value<<endl;
 		}
 		else if(front=="HOME"){
 			// cout<<"path"<<endl;
@@ -470,7 +484,7 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 			value=local_var.find(front)->second;
 		}
 		data=front+"#"+value;
-		cout<<data<<endl;
+		// cout<<data<<endl;
 		fstream outfile(filename,ios::out|ios::app);
 		outfile<<data<<endl;
 		outfile.close();
@@ -478,7 +492,7 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 		// int loc=export_command.find(" ");
 		// string var(export_command,loc+1,export_command.size()-loc-1);
 
-		cout<<data<<endl;
+		// cout<<data<<endl;
 	}
 	else if(!check_flag){
 		printf("Invalid Command\n");
@@ -508,6 +522,7 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 					// cout<<commands[0];
 					// cout<<commands[1];
 					// cout<<"exe"<<endl;
-					execute(buffer,environment_var,executable_var,commands);}
+					execute(buffer,environment_var,executable_var,commands);
+			}
 	}
 }

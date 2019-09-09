@@ -192,20 +192,45 @@ int main(){
 		else if((buffer[0]=='a')&&(buffer[1]='l')&&(buffer[2]=='a')&&(buffer[3]=='r')&&(buffer[4]=='m')){
 			CreateAlarmChild(buffer,display,alarmchilds);
 		}
-		// else if((buffer[0]=='r')&&(buffer[1]='u')&&(buffer[2]=='n')){
-		// 	// CreateAlarmChild(buffer,display,alarmchilds);
-		// 	cout<<"open command"<<endl;
-		// 	string s(buffer);
-		// 	int loc=s.find(" ");
-		// 	string temp(s,loc+1,s.size()-loc-1);
-		// 	cout<<temp<<endl;
-		// 	// char char_array[n + 1]; 
-		// 	strcpy(buffer, temp.c_str());
-		// 	buffer[temp.size()]='\0';
-		// 	commands[0]=
-		// 	ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
+		else if((buffer[0]=='r')&&(buffer[1]='u')&&(buffer[2]=='n')){
+			// CreateAlarmChild(buffer,display,alarmchilds);
+			cout<<"open command"<<endl;
+			string s(buffer);
+			int loc=s.find(".");
+			int loc1=s.find(" ");
+			string ex(s,loc+1,s.size()-loc-1);
+			string name(s,loc1+1,loc-loc1-1);
+			// cout<<ex;
+			string filename3=environment_var.find("HOME")->second+"/"+".myrc";
+			ifstream file(filename3);
+			string line;
+			string app;
+			getline(file,line);
+			// cout<<line<<endl;
+			while(getline(file,line)){
+				int loc2=line.find(" ");
+				string front(line,0,loc2);
+				string back(line,loc2+1,line.size()-loc2-1);
+				// cout<<front<<" "<<back<<endl;
+				if(front==ex){
+					app=back;
+					break;
+				}
+			}
 
-		// }
+
+			// loc=s.find(" ");
+			// string temp(s,loc+1,s.size()-loc-1);
+			// // cout<<temp<<endl;
+			// // char char_array[n + 1];
+			string temp=app+" "+name+"."+ex;
+			strcpy(buffer, temp.c_str());
+			buffer[temp.size()]='\0';
+			cout<<buffer<<endl;
+			// // commands[0]=
+			ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
+
+		}
 		else if(CheckContains(buffer,"|")){
 			// cout<<"pipe"<<endl;
 			int count=0;

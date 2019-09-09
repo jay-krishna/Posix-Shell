@@ -58,7 +58,7 @@ void executeS(char buffer[],unordered_map <string,string> &environment_var,unord
 		// 	environment_var.erase("Error");
 		// 	environment_var.insert(make_pair("Error",to_string(error)));
 		// }
-		cout<<"YES"<<endl;
+		// cout<<"YES"<<endl;
 		string filename1=environment_var.find("HOME")->second+"/"+"scriptoutput.txt";
 		string filename2=environment_var.find("HOME")->second+"/"+"scriptoutput_temp.txt";
 
@@ -90,7 +90,7 @@ void executeS(char buffer[],unordered_map <string,string> &environment_var,unord
 
 
 		auto e = execve(commands[0],commands,env_array);
-		cout<<e<<endl;
+		// cout<<e<<endl;
 		if (e == -1)
 			fprintf(stderr, "Error: %s\n", strerror(errno));
 

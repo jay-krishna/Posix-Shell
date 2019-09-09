@@ -426,7 +426,7 @@ void FetchBashrcVariables(unordered_map <string,string> &environment_var,unorder
 	new_environment_var.clear();
 
 	if(export_flag){
-		cout<<"Export Read"<<endl;
+		// cout<<"Export Read"<<endl;
 		ReadExport(environment_var,executable_var,env_var,new_environment_var,local_var);
 		export_flag=false;
 	}
