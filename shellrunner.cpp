@@ -103,7 +103,7 @@ void execute(char buffer[],unordered_map <string,string> &environment_var,unorde
 		// auto itr=
 		string pathpass="PATH="+environment_var.find("PATH")->second;
     	char* env_array[3]={(char*)pathpass.c_str(),(char*)"TERM=xterm-256color",NULL};
-    	// cout<<commands[0]
+    	cout<<commands[0];
 
 		auto e = execve(commands[0],commands,env_array);
 		cout<<e<<endl;
@@ -175,7 +175,7 @@ void executeRed(char buffer[],unordered_map <string,string> &environment_var,uno
     	// for(;commands[z]!=NULL;++z){
     	//     		cout<<commands[z]<<endl;}
 
-    	int fd=open(filename.c_str(),O_CREAT|O_WRONLY,S_IRUSR|S_IWUSR);
+    	int fd=open(filename.c_str(),O_CREAT|O_WRONLY|O_TRUNC,S_IRUSR|S_IWUSR);
     	dup2(fd,1);
 
 
@@ -349,7 +349,8 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 	MakeCharArray(command_check,buffer);
 
 	bool check_flag=break_command(buffer,environment_var,executable_var,commands);
-
+	// cout<<commands[0]<<endl;
+	// cout<<commands[1]<<endl;
 	if(CheckContains(buffer,"=")){
 			// cout<<"Yes"<<endl;
 		string value;
@@ -421,6 +422,15 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 	        cout<<line<<endl;
 	    }
 	}
+	// else if((strcmp(commands[0],"run")==0)){
+	// 	cout<<"run";
+	// 	// string filename2=environment_var.find("HOME")->second+"/"+"my_history.txt";
+	// 	// string line;
+	//  //    ifstream infile1(filename2);
+	//  //    while (getline(infile1,line)){
+	//  //        cout<<line<<endl;
+	//  //    }
+	// }
 	else if((buffer[0]=='e')&&(buffer[1]=='c')&&(buffer[2]=='h')&&(buffer[3]=='o')&&(buffer[4]==' ')){
 		// cout<<"three"<<endl;
 		// commands[0]=(char*)"echo";
@@ -473,6 +483,9 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 	else if(!check_flag){
 		printf("Invalid Command\n");
 	}
+	// else if(strcmp(commands[0],"openapp")==0){
+	// 	cout<<"OPne"<<endl;
+	// }
 	else{
 		// cout<<"execute"<<endl;
 		// cout<<commands[0]<<endl;
@@ -490,7 +503,11 @@ void ExecuteKernel(unordered_map <string,string> &environment_var,unordered_map 
 			// cout<<"yes"<<endl;
 			executeRed(buffer,environment_var,executable_var,commands);	
 		}
-		else
-			execute(buffer,environment_var,executable_var,commands);
+		else{
+					// cout<<"Here"<<endl;
+					// cout<<commands[0];
+					// cout<<commands[1];
+					// cout<<"exe"<<endl;
+					execute(buffer,environment_var,executable_var,commands);}
 	}
 }

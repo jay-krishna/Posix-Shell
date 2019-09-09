@@ -16,6 +16,7 @@
 #include "helper.h"
 #include "shellrunner.h"
 #include "getinput.h"
+#include "shellrunnerscript.h"
 
 using namespace std;
 
@@ -86,6 +87,7 @@ int main(){
 	bool flag=true;
 	bool flag_alarm=true;
 	bool export_flag=true;
+	bool script_flag=false;
 
 	FetchEnvironmentVariables(environment_var,executable_var,new_environment_var,new_alias_var,local_var);
 
@@ -139,7 +141,7 @@ int main(){
 		buffer[i]='\0';
 
 		RecordHistory(buffer,environment_var);
-
+		// cout<<buffer<<endl;
 		if(strcmp(buffer,"exit")==0){
 				int id=getpid();
 				string filename=environment_var.find("HOME")->second+"/"+"."+to_string(id)+"_.txt";
@@ -168,6 +170,19 @@ int main(){
 
 				flag=false;
 		}
+		else if((strcmp(buffer,"record start")==0)||(strcmp(buffer,"record stop")==0))
+		{
+			// cout<<"Record"<<endl;
+			if(strcmp(buffer,"record start")==0){
+				script_flag=true;
+				string filename2=environment_var.find("HOME")->second+"/"+"scriptoutput.txt";
+				ofstream outfile(filename2,ios::out|ios::trunc);
+				outfile.close();
+			}
+			else{
+				script_flag=false;
+			}
+		}
 		else if(strlen(buffer)==0){
 			continue;
 		}
@@ -177,8 +192,37 @@ int main(){
 		else if((buffer[0]=='a')&&(buffer[1]='l')&&(buffer[2]=='a')&&(buffer[3]=='r')&&(buffer[4]=='m')){
 			CreateAlarmChild(buffer,display,alarmchilds);
 		}
-		else{
+		// else if((buffer[0]=='r')&&(buffer[1]='u')&&(buffer[2]=='n')){
+		// 	// CreateAlarmChild(buffer,display,alarmchilds);
+		// 	cout<<"open command"<<endl;
+		// 	string s(buffer);
+		// 	int loc=s.find(" ");
+		// 	string temp(s,loc+1,s.size()-loc-1);
+		// 	cout<<temp<<endl;
+		// 	// char char_array[n + 1]; 
+		// 	strcpy(buffer, temp.c_str());
+		// 	buffer[temp.size()]='\0';
+		// 	commands[0]=
+		// 	ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
+
+		// }
+		else if(CheckContains(buffer,"|")){
+			cout<<"pipe"<<endl;
+			int count=0;
+			const char *delim2="|";
+			char *token = strtok(const_cast<char*>(buffer), delim2);
+			while(token!=nullptr){
+				ExecuteKernelP(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,token,count);
+				token = strtok(nullptr, delim2);
+				++count;
+			}
+		}
+		else if(!script_flag){
 			ExecuteKernel(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
+		}
+		else{
+			// cout<<"script command"<<endl;
+			ExecuteKernelS(environment_var,executable_var,alias_var,new_environment_var,new_alias_var,local_var,commands,buffer);
 		}
 		fflush(stdin);
 		memset(buffer, 0, strlen(buffer));

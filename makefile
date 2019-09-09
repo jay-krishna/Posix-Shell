@@ -1,8 +1,8 @@
 all:shell
 
 
-shell: shell.o helper.o environmenthandler.o shellrunner.o getinput.o search.o
-	g++ -Wall shell.o helper.o environmenthandler.o shellrunner.o getinput.o search.o -o shell
+shell: shell.o helper.o environmenthandler.o shellrunner.o getinput.o search.o shellrunnerscript.o
+	g++ -Wall shell.o helper.o environmenthandler.o shellrunner.o getinput.o search.o shellrunnerscript.o -o shell
 
 shell.o: shell.cpp 
 	g++ -Wall -c shell.cpp 
@@ -21,3 +21,6 @@ getinput.o: getinput.cpp
 
 search.o: search.cpp
 	g++ -Wall -c search.cpp
+
+shellrunnerscript.o: shellrunnerscript.cpp
+	g++ -Wall -c shellrunnerscript.cpp
